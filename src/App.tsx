@@ -103,6 +103,7 @@ export default function App() {
             drivers={drivers}
             onBack={handleBackToAllocation}
             onLogout={handleLogout}
+            onDeleteDriver={handleDeleteDriver}
           />
         );
       case 'studentManagement':

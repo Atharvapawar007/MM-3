@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { 
   Bus, 
@@ -19,14 +19,12 @@ import {
   AlertCircle,
   CheckCircle,
   Phone,
-  GripVertical,
   Send,
   AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Banner } from './Banner';
 import { Footer } from './Footer';
-import { Resizable } from 're-resizable';
 
 interface Driver {
   id: string;
@@ -76,7 +74,6 @@ export function StudentManagementPage({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  const [sidePanelWidth, setSidePanelWidth] = useState(350);
   
   // Form states
   const [studentName, setStudentName] = useState('');
@@ -133,15 +130,15 @@ export function StudentManagementPage({
     return true;
   };
 
-  const resetForm = useCallback(() => {
+  const resetForm = () => {
     setStudentName('');
     setStudentPRN('');
     setStudentGender('');
     setStudentEmail('');
     setEditingStudent(null);
-  }, []);
+  };
 
-  const handleAddStudent = useCallback(() => {
+  const handleAddStudent = () => {
     if (!validateForm()) return;
 
     const targetBusId = selectedBusId;
@@ -167,18 +164,18 @@ export function StudentManagementPage({
 
     resetForm();
     setIsAddDialogOpen(false);
-  }, [studentName, studentPRN, studentGender, studentEmail, selectedBusId, drivers, onAddStudent, resetForm]);
+  };
 
-  const handleEditStudent = useCallback((student: Student) => {
+  const handleEditStudent = (student: Student) => {
     setEditingStudent(student);
     setStudentName(student.name);
     setStudentPRN(student.prn);
     setStudentGender(student.gender);
     setStudentEmail(student.email);
     setIsEditDialogOpen(true);
-  }, []);
+  };
 
-  const handleUpdateStudent = useCallback(() => {
+  const handleUpdateStudent = () => {
     if (!validateForm() || !editingStudent) return;
 
     const updatedStudent: Student = {
@@ -194,18 +191,18 @@ export function StudentManagementPage({
     
     resetForm();
     setIsEditDialogOpen(false);
-  }, [editingStudent, studentName, studentPRN, studentGender, studentEmail, onUpdateStudent, resetForm]);
+  };
 
-  const handleDeleteStudent = useCallback((student: Student) => {
+  const handleDeleteStudent = (student: Student) => {
     onDeleteStudent(student.id);
     toast.success(`${student.name} has been removed from the bus`);
-  }, [onDeleteStudent]);
+  };
 
   const getStudentsForBus = (busId: string) => {
     return students.filter(student => student.busId === busId);
   };
 
-  const handleSendInvitations = useCallback(() => {
+  const handleSendInvitations = () => {
     const busStudents = getStudentsForBus(selectedBusId);
     const studentsWithoutCredentials = busStudents.filter(s => !s.credentialsGenerated);
     
@@ -229,143 +226,15 @@ export function StudentManagementPage({
     toast.success('Sending all the invitations', {
       description: `Email invitations sent to ${studentsWithoutCredentials.length} students with login credentials`
     });
-  }, [selectedBusId, students, onUpdateStudent]);
+  };
 
   const selectedDriver = drivers.find(d => d.id === selectedBusId);
   const busStudents = getStudentsForBus(selectedBusId);
   const studentsWithoutCredentials = busStudents.filter(s => !s.credentialsGenerated);
 
-  // Memoized StudentForm component to prevent re-renders
-  const StudentForm = useCallback(({ isEdit = false }: { isEdit?: boolean }) => (
-    <div className="space-y-4">
-      {/* Input Warning Notice */}
-      <div className="bg-red-50 border-l-4 border-red-500 p-3 mb-4">
-        <div className="flex items-start">
-          <AlertTriangle className="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="text-sm font-bold text-red-700">
-              This input system only supports copy-paste
-            </p>
-            <p className="text-xs text-red-600 mt-1">
-              Due to technical limitations, please copy and paste text instead of typing character by character.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor={isEdit ? "editStudentName" : "studentName"} style={{ color: '#333333' }}>
-          Student Name *
-        </Label>
-        <Input
-          id={isEdit ? "editStudentName" : "studentName"}
-          type="text"
-          placeholder="Enter full name"
-          value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
-          className="border-2 focus:ring-2 transition-all"
-          style={{ 
-            borderColor: '#E53935',
-            backgroundColor: '#FFFFFF'
-          }}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor={isEdit ? "editStudentPRN" : "studentPRN"} style={{ color: '#333333' }}>
-          PRN (Personal Registration Number) *
-        </Label>
-        <Input
-          id={isEdit ? "editStudentPRN" : "studentPRN"}
-          type="text"
-          placeholder="e.g., 2023001234"
-          value={studentPRN}
-          onChange={(e) => setStudentPRN(e.target.value)}
-          className="border-2 focus:ring-2 transition-all"
-          style={{ 
-            borderColor: '#E53935',
-            backgroundColor: '#FFFFFF'
-          }}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor={isEdit ? "editStudentGender" : "studentGender"} style={{ color: '#333333' }}>
-          Gender *
-        </Label>
-        <Select value={studentGender} onValueChange={setStudentGender}>
-          <SelectTrigger 
-            className="border-2 focus:ring-2 transition-all"
-            style={{ 
-              borderColor: '#E53935',
-              backgroundColor: '#FFFFFF'
-            }}
-          >
-            <SelectValue placeholder="Select gender" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="male">Male</SelectItem>
-            <SelectItem value="female">Female</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor={isEdit ? "editStudentEmail" : "studentEmail"} style={{ color: '#333333' }}>
-          Email ID *
-        </Label>
-        <div className="relative">
-          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: '#333333', opacity: 0.5 }} />
-          <Input
-            id={isEdit ? "editStudentEmail" : "studentEmail"}
-            type="email"
-            placeholder="student@college.edu"
-            value={studentEmail}
-            onChange={(e) => setStudentEmail(e.target.value)}
-            className="border-2 focus:ring-2 transition-all pl-10"
-            style={{ 
-              borderColor: '#E53935',
-              backgroundColor: '#FFFFFF'
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-end gap-3 pt-4">
-        <Button
-          variant="outline"
-          onClick={() => {
-            resetForm();
-            isEdit ? setIsEditDialogOpen(false) : setIsAddDialogOpen(false);
-          }}
-          className="border-2"
-          style={{ 
-            borderColor: '#333333',
-            color: '#333333',
-            backgroundColor: '#FFFFFF'
-          }}
-        >
-          Cancel
-        </Button>
-        <Button
-          onClick={isEdit ? handleUpdateStudent : handleAddStudent}
-          className="transition-all duration-200 hover:opacity-90"
-          style={{ 
-            backgroundColor: '#1565C0',
-            color: '#FFFFFF'
-          }}
-        >
-          <CheckCircle className="w-4 h-4 mr-2" />
-          {isEdit ? 'Update Student' : 'Add Student'}
-        </Button>
-      </div>
-    </div>
-  ), [studentName, studentPRN, studentGender, studentEmail, handleAddStudent, handleUpdateStudent, resetForm]);
-
   if (drivers.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F5F5F5' }}>
+      <div className="min-h-screen flex flex-col bg-background">
         <Banner />
         <div className="flex-1 p-4">
           <div className="max-w-6xl mx-auto">
@@ -373,12 +242,8 @@ export function StudentManagementPage({
               <Button
                 onClick={onBack}
                 variant="outline"
-                className="flex items-center gap-2 border-2 hover:opacity-80"
-                style={{ 
-                  borderColor: '#1565C0',
-                  color: '#1565C0',
-                  backgroundColor: '#FFFFFF'
-                }}
+                className="flex items-center gap-2 border-blue-500 text-blue-500 transform transition-transform duration-300 ease-in-out 
+               hover:scale-105 hover:bg-blue-105"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Allocation
@@ -387,29 +252,25 @@ export function StudentManagementPage({
               <Button
                 onClick={onLogout}
                 variant="outline"
-                className="flex items-center gap-2 border-2 hover:opacity-80"
-                style={{ 
-                  borderColor: '#E53935',
-                  color: '#E53935',
-                  backgroundColor: '#FFFFFF'
-                }}
+                className="flex items-center gap-2 border-red-500 text-red-500 hover:bg-red-100"
               >
                 <LogOut className="w-4 h-4" />
                 Logout
               </Button>
             </div>
 
-            <Card className="shadow-lg border-0 text-center py-12" style={{ backgroundColor: '#FFFFFF' }}>
+            <Card className="shadow-card border-0 text-center py-12">
               <CardContent>
                 <div className="flex flex-col items-center gap-4">
-                  <div className="p-4 rounded-full" style={{ backgroundColor: '#F5F5F5' }}>
-                    <Bus className="w-8 h-8" style={{ color: '#333333', opacity: 0.5 }} />
+                  {/* Improved circular alert icon container */}
+                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                    <Bus className="w-6 h-6 text-muted-foreground" />
                   </div>
                   <div>
-                    <h3 className="font-medium mb-2" style={{ color: '#333333' }}>
+                    <h3 className="font-medium mb-2 text-foreground">
                       No Buses Available
                     </h3>
-                    <p className="text-sm" style={{ color: '#333333', opacity: 0.7 }}>
+                    <p className="text-sm text-muted-foreground">
                       Please allocate drivers to buses first before managing students.
                     </p>
                   </div>
@@ -424,413 +285,536 @@ export function StudentManagementPage({
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F5F5F5' }}>
+    <div className="flex h-screen flex-col bg-background">
       <Banner />
       
-      <div className="flex-1 flex h-0 overflow-hidden">
-        {/* Draggable Side Panel with proper full height and scrolling */}
-        <Resizable
-          size={{ width: sidePanelWidth, height: '100%' }}
-          onResizeStop={(_e: any, _direction: any, _ref: any, d: any) => {
-            setSidePanelWidth(sidePanelWidth + d.width);
-          }}
-          minWidth={280}
-          maxWidth={500}
-          enable={{ right: true }}
-          handleStyles={{
-            right: {
-              width: '6px',
-              right: '-3px',
-              background: '#E53935',
-              cursor: 'col-resize',
-              borderRadius: '0 4px 4px 0'
-            }
-          }}
-          className="border-r-2 h-full"
-          style={{ borderColor: '#E53935', backgroundColor: '#FFFFFF' }}
-        >
-          <div className="h-full flex flex-col">
-            {/* Side Panel Header - Fixed/Static */}
-            <div className="p-4 border-b-2 flex-shrink-0" style={{ borderColor: '#E53935' }}>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 rounded-lg" style={{ backgroundColor: '#E53935' }}>
-                  <Bus className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-                </div>
-                <div>
-                  <h2 className="font-medium" style={{ color: '#333333' }}>
-                    Available Buses
-                  </h2>
-                  <p className="text-sm" style={{ color: '#333333', opacity: 0.7 }}>
-                    {drivers.length} buses allocated
-                  </p>
-                </div>
+      {/* Main header with navigation */}
+      <div className="flex-shrink-0 p-6 border-b bg-card shadow-soft">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="flex items-center gap-2 border-blue-500 text-blue-500 hover:bg-blue-100 transform transition-transform duration-300 ease-in-out 
+               hover:scale-105"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Allocation
+            </Button>
+            
+            <div className="flex items-center gap-4">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary">
+                <Users className="w-6 h-6 text-primary-foreground text-white" />
               </div>
-              <div className="flex items-center gap-2 text-xs" style={{ color: '#333333', opacity: 0.6 }}>
-                <GripVertical className="w-3 h-3" />
-                <span>Drag to resize panel</span>
-              </div>
-            </div>
-
-            {/* Bus List - Scrollable with scroll bar on inside right edge */}
-            <div className="flex-1 relative">
-              <div className="h-full overflow-y-auto">
-                <div className="p-4 space-y-3 pr-6">
-                  {drivers.map((driver) => {
-                    const studentCount = getStudentsForBus(driver.id).length;
-                    const isSelected = selectedBusId === driver.id;
-                    
-                    return (
-                      <Card 
-                        key={driver.id}
-                        className={`cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${
-                          isSelected ? 'ring-2' : ''
-                        }`}
-                        style={{ 
-                          borderColor: isSelected ? '#E53935' : '#E53935',
-                          backgroundColor: isSelected ? '#FFEB3B' : '#FFFFFF'
-                        }}
-                        onClick={() => setSelectedBusId(driver.id)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-3 mb-3">
-                            {driver.busPhoto ? (
-                              <img 
-                                src={driver.busPhoto} 
-                                alt={`Bus ${driver.busNumber}`}
-                                className="w-12 h-12 object-cover rounded border-2"
-                                style={{ borderColor: '#1565C0' }}
-                              />
-                            ) : (
-                              <div 
-                                className="w-12 h-12 rounded flex items-center justify-center border-2"
-                                style={{ 
-                                  backgroundColor: '#F5F5F5',
-                                  borderColor: '#1565C0'
-                                }}
-                              >
-                                <Bus className="w-6 h-6" style={{ color: '#1565C0' }} />
-                              </div>
-                            )}
-                            <div className="flex-1">
-                              <h3 className="font-medium" style={{ color: '#333333' }}>
-                                Bus {driver.busNumber}
-                              </h3>
-                              <p className="text-sm" style={{ color: '#333333', opacity: 0.7 }}>
-                                {driver.busPlate}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <User className="w-4 h-4" style={{ color: '#1565C0' }} />
-                              <div>
-                                <p className="text-sm font-medium" style={{ color: '#333333' }}>
-                                  {driver.name}
-                                </p>
-                                <p className="text-xs" style={{ color: '#333333', opacity: 0.7 }}>
-                                  Driver #{driver.number}
-                                </p>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-2">
-                              <Phone className="w-4 h-4" style={{ color: '#1565C0' }} />
-                              <p className="text-sm" style={{ color: '#333333' }}>
-                                {driver.contact}
-                              </p>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4" style={{ color: '#1565C0' }} />
-                              <p className="text-sm" style={{ color: '#333333' }}>
-                                {studentCount} student{studentCount !== 1 ? 's' : ''}
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
+              <div>
+                <h1 className="text-2xl font-medium text-foreground">
+                  Student Management
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Managing students for {selectedDriver ? `Bus ${selectedDriver.busNumber}` : 'selected bus'}
+                </p>
               </div>
             </div>
           </div>
-        </Resizable>
+          
+          <Button
+            onClick={onLogout}
+            variant="outline"
+            className="flex items-center gap-2 border-red-500 text-red-500 hover:bg-red-50 transform transition-transform duration-300 ease-in-out 
+               hover:scale-105"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
+        </div>
+      </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col h-full">
-          {/* Header - Fixed/Static */}
-          <div className="p-6 border-b flex-shrink-0" style={{ backgroundColor: '#FFFFFF' }}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Button
-                  onClick={onBack}
-                  variant="outline"
-                  className="flex items-center gap-2 border-2 hover:opacity-80"
-                  style={{ 
-                    borderColor: '#1565C0',
-                    color: '#1565C0',
-                    backgroundColor: '#FFFFFF'
-                  }}
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Allocation
-                </Button>
+      {/* Main content area with flex layout */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Side Panel - Buses & Drivers */}
+        <div className="w-1/4 h-full border-r bg-card">
+          {/* Sticky Header */}
+          <div className="sticky top-0 bg-card border-b p-4 z-10 shadow-soft">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-primary">
+                <Bus className="w-5 h-5 text-primary-foreground text-white" />
+              </div>
+              <div>
+                <h2 className="font-medium text-foreground">
+                  Buses & Drivers
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {drivers.length} buses allocated
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Scrollable Bus List */}
+          <div className="h-full overflow-y-auto">
+            <div className="p-4 space-y-3 pb-20">
+              {drivers.map((driver) => {
+                const studentCount = getStudentsForBus(driver.id).length;
+                const isSelected = selectedBusId === driver.id;
                 
-                <div className="flex items-center gap-4">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full" style={{ backgroundColor: '#1565C0' }}>
-                    <Users className="w-6 h-6" style={{ color: '#FFFFFF' }} />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold" style={{ color: '#333333' }}>
-                      Student Management
-                    </h1>
-                    <p className="text-sm" style={{ color: '#333333', opacity: 0.7 }}>
-                      Managing students for {selectedDriver ? `Bus ${selectedDriver.busNumber}` : 'selected bus'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <Button
-                onClick={onLogout}
-                variant="outline"
-                className="flex items-center gap-2 border-2 hover:opacity-80"
-                style={{ 
-                  borderColor: '#E53935',
-                  color: '#E53935',
-                  backgroundColor: '#FFFFFF'
-                }}
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </Button>
-            </div>
-          </div>
-
-          {/* Main Content - Scrollable */}
-          <div className="flex-1 overflow-hidden">
-            {selectedDriver ? (
-              <div className="h-full flex flex-col">
-                {/* Selected Bus Info Card - Fixed/Static */}
-                <div className="p-6 flex-shrink-0">
-                  <Card className="shadow-lg border-0" style={{ backgroundColor: '#FFFFFF' }}>
-                    <CardHeader className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          {selectedDriver.busPhoto && (
-                            <img 
-                              src={selectedDriver.busPhoto} 
-                              alt={`Bus ${selectedDriver.busNumber}`}
-                              className="w-16 h-16 object-cover rounded border-2"
-                              style={{ borderColor: '#1565C0' }}
-                            />
-                          )}
-                          <div>
-                            <CardTitle style={{ color: '#333333' }}>
-                              Bus {selectedDriver.busNumber} - {selectedDriver.busPlate}
-                            </CardTitle>
-                            <CardDescription style={{ color: '#333333', opacity: 0.7 }}>
-                              Driver: {selectedDriver.name} | Contact: {selectedDriver.contact}
-                            </CardDescription>
+                return (
+                  <Card 
+                    key={driver.id}
+                    className={`cursor-pointer transition-all duration-200 hover:shadow-elevated border ${
+                      isSelected 
+                        ? 'ring-2 ring-primary bg-accent/10 border-primary shadow-elevated' 
+                        : 'border-border hover:border-secondary/50 shadow-card'
+                    }`}
+                    onClick={() => setSelectedBusId(driver.id)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        {driver.busPhoto ? (
+                          <img 
+                            src={driver.busPhoto} 
+                            alt={`Bus ${driver.busNumber}`}
+                            className="w-12 h-12 object-cover rounded-lg border-2 border-primary"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg flex items-center justify-center border-2 border-primary bg-primary/10">
+                            <Bus className="w-6 h-6 text-primary" />
                           </div>
+                        )}
+                        <div className="flex-1">
+                          <h3 className="font-medium text-foreground">
+                            Bus {driver.busNumber}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {driver.busPlate}
+                          </p>
                         </div>
-                        
-                        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                          <DialogTrigger asChild>
-                            <Button
-                              className="flex items-center gap-2 transition-all duration-200 hover:opacity-90"
-                              style={{ 
-                                backgroundColor: '#FFEB3B',
-                                color: '#333333'
-                              }}
-                            >
-                              <UserPlus className="w-4 h-4" />
-                              Add Student Passenger
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-lg p-6" style={{ backgroundColor: '#FFFFFF' }}>
-                            <DialogHeader className="pb-4">
-                              <DialogTitle style={{ color: '#333333' }}>
-                                Add Student to Bus {selectedDriver.busNumber}
-                              </DialogTitle>
-                              <DialogDescription style={{ color: '#333333', opacity: 0.7 }}>
-                                Enter student details. Credentials will be generated when sending invitations.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <StudentForm />
-                          </DialogContent>
-                        </Dialog>
                       </div>
-                    </CardHeader>
-                  </Card>
-                </div>
 
-                {/* Students List Container - Flexible */}
-                <div className="flex-1 px-6 pb-6 overflow-hidden">
-                  <Card className="shadow-lg border-0 h-full flex flex-col" style={{ backgroundColor: '#FFFFFF' }}>
-                    {/* Student List Header - Fixed/Static */}
-                    <CardHeader className="flex-shrink-0 p-6 border-b" style={{ borderColor: '#E53935' }}>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg" style={{ backgroundColor: '#1565C0' }}>
-                          <Users className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-                        </div>
-                        <div>
-                          <CardTitle style={{ color: '#333333' }}>
-                            Student Passengers ({busStudents.length})
-                          </CardTitle>
-                          <CardDescription style={{ color: '#333333', opacity: 0.7 }}>
-                            Students assigned to this bus
-                          </CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    
-                    {/* Student List Content - Scrollable with scroll bar on inside right edge */}
-                    <CardContent className="flex-1 overflow-hidden p-0">
-                      {busStudents.length === 0 ? (
-                        <div className="flex items-center justify-center h-full p-6">
-                          <div className="text-center w-full">
-                            <div className="inline-flex items-center justify-center p-4 rounded-full mb-4" style={{ backgroundColor: '#F5F5F5' }}>
-                              <AlertCircle className="w-8 h-8 mx-auto" style={{ color: '#333333', opacity: 0.5 }} />
-                            </div>
-                            <h3 className="font-medium mb-2" style={{ color: '#333333' }}>
-                              No students allotted to this bus
-                            </h3>
-                            <p className="text-sm" style={{ color: '#333333', opacity: 0.7 }}>
-                              Click "Add Student Passenger" to assign students to this bus.
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-primary" />
+                          <div>
+                            <p className="text-sm font-medium text-foreground">
+                              {driver.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Driver #{driver.number}
                             </p>
                           </div>
                         </div>
-                      ) : (
-                        <div className="h-full relative">
-                          <div className="h-full overflow-y-auto">
-                            <div className="p-6 pr-10">
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {busStudents.map((student) => (
-                                  <Card key={student.id} className="border hover:shadow-md transition-shadow" style={{ borderColor: '#E53935' }}>
-                                    <CardContent className="p-4">
-                                      <div className="flex items-center gap-3 mb-3">
-                                        <Avatar className="w-10 h-10 border-2" style={{ borderColor: '#1565C0' }}>
-                                          <AvatarFallback style={{ backgroundColor: '#1565C0', color: '#FFFFFF' }}>
-                                            {student.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                                          </AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex-1">
-                                          <h4 className="font-medium" style={{ color: '#333333' }}>
-                                            {student.name}
-                                          </h4>
-                                          <p className="text-xs" style={{ color: '#333333', opacity: 0.7 }}>
-                                            PRN: {student.prn}
-                                          </p>
-                                        </div>
-                                        {student.credentialsGenerated && (
-                                          <div className="text-green-600 text-xs">
-                                            <CheckCircle className="w-4 h-4" />
-                                          </div>
-                                        )}
-                                      </div>
-
-                                      <div className="space-y-1 text-xs" style={{ color: '#333333' }}>
-                                        <p><span className="font-medium">Gender:</span> {student.gender}</p>
-                                        <p><span className="font-medium">Email:</span> {student.email}</p>
-                                        {student.credentialsGenerated && (
-                                          <p className="text-green-600 font-medium">✓ Invitation Sent</p>
-                                        )}
-                                      </div>
-
-                                      <div className="flex gap-2 mt-3">
-                                        <Dialog open={isEditDialogOpen && editingStudent?.id === student.id} onOpenChange={(open) => {
-                                          if (!open) {
-                                            setIsEditDialogOpen(false);
-                                            setEditingStudent(null);
-                                          }
-                                        }}>
-                                          <DialogTrigger asChild>
-                                            <Button
-                                              variant="outline"
-                                              size="sm"
-                                              onClick={() => handleEditStudent(student)}
-                                              className="flex-1 border"
-                                              style={{ 
-                                                borderColor: '#1565C0',
-                                                color: '#1565C0',
-                                                backgroundColor: '#FFFFFF'
-                                              }}
-                                            >
-                                              <Edit className="w-3 h-3 mr-1" />
-                                              Edit
-                                            </Button>
-                                          </DialogTrigger>
-                                          <DialogContent className="sm:max-w-lg p-6" style={{ backgroundColor: '#FFFFFF' }}>
-                                            <DialogHeader className="pb-4">
-                                              <DialogTitle style={{ color: '#333333' }}>
-                                                Edit Student Details
-                                              </DialogTitle>
-                                              <DialogDescription style={{ color: '#333333', opacity: 0.7 }}>
-                                                Update student information for {editingStudent?.name}
-                                              </DialogDescription>
-                                            </DialogHeader>
-                                            <StudentForm isEdit={true} />
-                                          </DialogContent>
-                                        </Dialog>
-
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={() => handleDeleteStudent(student)}
-                                          className="border"
-                                          style={{ 
-                                            borderColor: '#E53935',
-                                            color: '#E53935',
-                                            backgroundColor: '#FFFFFF'
-                                          }}
-                                        >
-                                          <Trash2 className="w-3 h-3" />
-                                        </Button>
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-primary" />
+                          <p className="text-sm text-foreground">
+                            {driver.contact}
+                          </p>
                         </div>
-                      )}
+
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4 text-primary" />
+                          <p className="text-sm text-foreground">
+                            {studentCount} student{studentCount !== 1 ? 's' : ''}
+                          </p>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
-                </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Content Area - Students */}
+        <div className="flex-1 h-full">
+          {selectedDriver ? (
+            <div className="flex flex-col h-full">
+              {/* Selected Bus Info - Fixed */}
+              <div className="flex-shrink-0 p-6">
+                <Card className="shadow-lg border border-black">
+                  <CardHeader className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        {selectedDriver.busPhoto && (
+                          <img 
+                            src={selectedDriver.busPhoto} 
+                            alt={`Bus ${selectedDriver.busNumber}`}
+                            className="w-16 h-16 object-cover rounded-lg border-2 border-primary"
+                          />
+                        )}
+                        <div>
+                          <CardTitle className="text-foreground">
+                            Bus {selectedDriver.busNumber} - {selectedDriver.busPlate}
+                          </CardTitle>
+                          <CardDescription className="text-muted-foreground">
+                            Driver: {selectedDriver.name} | Contact: {selectedDriver.contact}
+                          </CardDescription>
+                        </div>
+                      </div>
+                      
+                      <Button
+                        onClick={() => setIsAddDialogOpen(true)}
+                        className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground transition-colors border border-black transform transition-transform duration-300 ease-in-out 
+               hover:scale-105"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        Add Student Passenger
+                      </Button>
+                    </div>
+                  </CardHeader>
+                </Card>
               </div>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <div className="p-4 rounded-full mb-4" style={{ backgroundColor: '#F5F5F5' }}>
-                    <Bus className="w-8 h-8 mx-auto" style={{ color: '#333333', opacity: 0.5 }} />
+
+              {/* Students List with Sticky Header */}
+              {/* <div className="flex-1 overflow-hidden"> */}
+                {/* Sticky Header */}
+                {/* <div className=" top-0 bg-card border-b p-6 z-10 shadow-soft">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary">
+                      <Users className="w-5 h-5 text-primary-foreground text-white" />
+                    </div>
+                    <div>
+                      <h2 className="font-medium text-foreground">
+                        Student Passengers ({busStudents.length})
+                      </h2>
+                      <p className="text-sm text-muted-foreground">
+                        Students assigned to this bus
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="font-medium mb-2" style={{ color: '#333333' }}>
-                    Select a Bus
-                  </h3>
-                  <p className="text-sm" style={{ color: '#333333', opacity: 0.7 }}>
-                    Choose a bus from the side panel to manage its students.
+                </div> */}
+                
+                {/* Scrollable Student Content */}
+                <div className="h-full overflow-y-auto">
+                  {busStudents.length === 0 ? (
+                    <div className="flex justify-center h-full p-6">
+                      <div className="text-center py-10">
+                        {/* Improved circular alert icon container */}
+                        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-4">
+                          <AlertCircle className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                        <h3 className="font-medium mb-2 text-foreground">
+                          No students allotted to this bus
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Click "Add Student Passenger" to assign students to this bus.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-6 pb-20">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {busStudents.map((student) => (
+                          <Card key={student.id} className="border border-black shadow-lg transform transition-transform duration-300 ease-in-out 
+               hover:scale-105">
+                            <CardContent className="p-4">
+                              <div className="flex items-center gap-3 mb-3">
+                                <Avatar className="w-10 h-10 border-2 border-primary">
+                                  <AvatarFallback className="bg-primary text-primary-foreground text-white">
+                                    {student.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                  <h4 className="font-medium text-foreground">
+                                    {student.name}
+                                  </h4>
+                                  <p className="text-xs text-muted-foreground">
+                                    PRN: {student.prn}
+                                  </p>
+                                </div>
+                                {student.credentialsGenerated && (
+                                  <div className="text-success">
+                                    <CheckCircle className="w-4 h-4" />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="space-y-1 text-xs">
+                                <p className="text-foreground"><span className="font-medium">Gender:</span> {student.gender}</p>
+                                <p className="text-foreground"><span className="font-medium">Email:</span> {student.email}</p>
+                                {student.credentialsGenerated && (
+                                  <p className="text-success font-medium">✓ Invitation Sent</p>
+                                )}
+                              </div>
+
+                              <div className="flex gap-2 mt-3">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEditStudent(student)}
+                                  className="flex-1 border-secondary text-secondary hover:bg-blue-50"
+                                >
+                                  <Edit className="w-3 h-3 mr-1" />
+                                  Edit
+                                </Button>
+
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDeleteStudent(student)}
+                                  className="border-red-500 text-red-500 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              {/* </div> */}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                {/* Improved circular alert icon container */}
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                  <Bus className="w-6 h-6 text-muted-foreground" />
+                </div>
+                <h3 className="font-medium mb-2 text-foreground">
+                  Select a Bus
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Choose a bus from the side panel to manage its students.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Add Student Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-lg bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">
+              Add Student to Bus {selectedDriver?.busNumber}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Enter student details. Credentials will be generated when sending invitations.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Input Warning Notice */}
+            <div className="bg-red-500/10 border-l-4 border-red-500 p-3 mb-4 rounded-r-lg">
+              <div className="flex items-start">
+                <AlertTriangle className="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-red-500">
+                    This input system only supports copy-paste
+                  </p>
+                  <p className="text-xs text-red-500 mt-1">
+                    Due to technical limitations, please copy and paste text instead of typing character by character.
                   </p>
                 </div>
               </div>
-            )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="studentName" className="text-foreground">
+                Student Name *
+              </Label>
+              <Input
+                id="studentName"
+                type="text"
+                placeholder="Enter full name"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                className="border-2 border-border focus:border-primary focus:ring-primary transition-colors"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="studentPRN" className="text-foreground">
+                PRN (Personal Registration Number) *
+              </Label>
+              <Input
+                id="studentPRN"
+                type="text"
+                placeholder="e.g., 2023001234"
+                value={studentPRN}
+                onChange={(e) => setStudentPRN(e.target.value)}
+                className="border-2 border-border focus:border-primary focus:ring-primary transition-colors"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="studentGender" className="text-foreground">
+                Gender *
+              </Label>
+              <Select value={studentGender} onValueChange={setStudentGender}>
+                <SelectTrigger className="border-2 border-border focus:border-primary focus:ring-primary transition-colors">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="studentEmail" className="text-foreground">
+                Email ID *
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="studentEmail"
+                  type="email"
+                  placeholder="student@college.edu"
+                  value={studentEmail}
+                  onChange={(e) => setStudentEmail(e.target.value)}
+                  className="border-2 border-border focus:border-primary focus:ring-primary pl-10 transition-colors"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  resetForm();
+                  setIsAddDialogOpen(false);
+                }}
+                className="border-2 border-border hover:bg-muted"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddStudent}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
+              >
+                <CheckCircle className="w-4 h-4 mr-2 text-white" />
+                <span className="text-white">Add Student</span>
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Student Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">
+              Edit Student Details
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Update student information for {editingStudent?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Input Warning Notice */}
+            <div className="bg-red-500/10 border-l-4 border-red-500 p-3 mb-4 rounded-r-lg">
+              <div className="flex items-start">
+                <AlertTriangle className="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-red-500">
+                    This input system only supports copy-paste
+                  </p>
+                  <p className="text-xs text-red-500/80 mt-1">
+                    Due to technical limitations, please copy and paste text instead of typing character by character.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editStudentName" className="text-foreground">
+                Student Name *
+              </Label>
+              <Input
+                id="editStudentName"
+                type="text"
+                placeholder="Enter full name"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                className="border-2 border-border focus:border-primary focus:ring-primary transition-colors"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editStudentPRN" className="text-foreground">
+                PRN (Personal Registration Number) *
+              </Label>
+              <Input
+                id="editStudentPRN"
+                type="text"
+                placeholder="e.g., 2023001234"
+                value={studentPRN}
+                onChange={(e) => setStudentPRN(e.target.value)}
+                className="border-2 border-border focus:border-primary focus:ring-primary transition-colors"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editStudentGender" className="text-foreground">
+                Gender *
+              </Label>
+              <Select value={studentGender} onValueChange={setStudentGender}>
+                <SelectTrigger className="border-2 border-border focus:border-primary focus:ring-primary transition-colors">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editStudentEmail" className="text-foreground">
+                Email ID *
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="editStudentEmail"
+                  type="email"
+                  placeholder="student@college.edu"
+                  value={studentEmail}
+                  onChange={(e) => setStudentEmail(e.target.value)}
+                  className="border-2 border-border focus:border-primary focus:ring-primary pl-10 transition-colors"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  resetForm();
+                  setIsEditDialogOpen(false);
+                }}
+                className="border-2 border-border hover:bg-muted"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleUpdateStudent}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Update Student
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Send Invitations Button - Fixed position above footer */}
       {selectedDriver && studentsWithoutCredentials.length > 0 && (
         <div className="fixed bottom-20 right-8 z-50">
           <Button
             onClick={handleSendInvitations}
-            className="flex items-center gap-2 shadow-lg transition-all duration-200 hover:opacity-90"
-            style={{ 
-              backgroundColor: '#FFEB3B',
-              color: '#333333'
-            }}
+            className="flex items-center gap-2 shadow-elevated bg-accent hover:bg-accent/90 text-accent-foreground transition-all duration-200"
           >
             <Send className="w-4 h-4" />
             Send Invitations ({studentsWithoutCredentials.length})
@@ -838,7 +822,7 @@ export function StudentManagementPage({
         </div>
       )}
       
-      <Footer />
+      <Footer/>
     </div>
   );
 }

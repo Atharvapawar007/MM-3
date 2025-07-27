@@ -27,29 +27,29 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#F5F5F5' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-md">
         {/* Header with branding */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ backgroundColor: '#1565C0' }}>
-            <Bus className="w-8 h-8" style={{ color: '#FFFFFF' }} />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 bg-primary">
+            <Bus className="w-8 h-8 text-primary-foreground text-white" />
           </div>
-          <h1 className="text-2xl font-bold" style={{ color: '#333333' }}>
+          <h1 className="text-2xl font-medium text-foreground">
             BusTracker Admin
           </h1>
-          <p className="text-sm mt-2" style={{ color: '#333333', opacity: 0.7 }}>
+          <p className="text-sm mt-2 text-muted-foreground">
             Administrative Portal Access
           </p>
         </div>
 
         {/* Login Card */}
-        <Card className="shadow-lg border-0" style={{ backgroundColor: '#FFFFFF' }}>
+        <Card className="border-0 bg-card shadow-2xl bg-gray-100 border border-black">
           <CardHeader className="text-center pb-6">
             <div className="inline-flex items-center justify-center gap-2 mb-2">
-              <Shield className="w-5 h-5" style={{ color: '#1565C0' }} />
-              <CardTitle style={{ color: '#333333' }}>Secure Login</CardTitle>
+              <Shield className="w-5 h-5 text-primary" />
+              <CardTitle className="text-card-foreground">Secure Login</CardTitle>
             </div>
-            <CardDescription style={{ color: '#333333', opacity: 0.7 }}>
+            <CardDescription className="text-muted-foreground">
               Enter your credentials to access the admin dashboard
             </CardDescription>
           </CardHeader>
@@ -58,7 +58,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
               <div className="space-y-2">
-                <Label htmlFor="email" style={{ color: '#333333' }}>
+                <Label htmlFor="email" className="text-foreground">
                   Email Address
                 </Label>
                 <Input
@@ -68,17 +68,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="border-2 focus:ring-2 transition-all"
-                  style={{ 
-                    borderColor: '#E53935',
-                    backgroundColor: '#FFFFFF'
-                  }}
+                  className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background"
                 />
               </div>
 
               {/* Password Field */}
               <div className="space-y-2">
-                <Label htmlFor="password" style={{ color: '#333333' }}>
+                <Label htmlFor="password" className="text-foreground">
                   Password
                 </Label>
                 <div className="relative">
@@ -89,16 +85,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="border-2 focus:ring-2 transition-all pr-10"
-                    style={{ 
-                      borderColor: '#E53935',
-                      backgroundColor: '#FFFFFF'
-                    }}
+                    className="border-2 border-border focus:border-primary focus:ring-primary pr-10 transition-colors bg-input-background"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -114,17 +106,15 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <label className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 rounded border-2"
-                    style={{ accentColor: '#1565C0' }}
+                    className="w-4 h-4 rounded border-2 border-border accent-primary"
                   />
-                  <span className="text-sm" style={{ color: '#333333' }}>
+                  <span className="text-sm text-foreground">
                     Remember me
                   </span>
                 </label>
                 <a
                   href="#"
-                  className="text-sm hover:underline transition-colors"
-                  style={{ color: '#1565C0' }}
+                  className="text-sm text-secondary hover:text-secondary/80 hover:underline transition-colors"
                 >
                   Forgot password?
                 </a>
@@ -133,29 +123,18 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               {/* Login Button */}
               <Button
                 type="submit"
-                className="w-full py-3 transition-all duration-200 hover:opacity-90"
-                style={{ 
-                  backgroundColor: '#1565C0',
-                  color: '#FFFFFF'
-                }}
+                className="w-full py-3 bg-primary hover:bg-blue-600 text-primary-foreground transition-all duration-200"
               >
-                Sign In to Dashboard
+                <span className='text-white'>Sign In to Dashboard</span>
               </Button>
 
               {/* Admin Access Notice */}
-              <div 
-                className="p-3 rounded-lg border-l-4 text-sm"
-                style={{ 
-                  backgroundColor: '#FFEB3B',
-                  borderLeftColor: '#E53935',
-                  color: '#333333'
-                }}
-              >
+              <div className="bg-amber-500/10 border-l-4 border-accent p-3 rounded-r-lg">
                 <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4" style={{ color: '#E53935' }} />
-                  <span className="font-medium">Administrative Access Only</span>
+                  <Shield className="w-4 h-4 text-accent text-amber-500" />
+                  <span className="font-medium text-accent-foreground">Administrative Access Only</span>
                 </div>
-                <p className="mt-1 text-xs opacity-80">
+                <p className="mt-1 text-xs text-muted-foreground">
                   This portal is restricted to authorized administrators only.
                 </p>
               </div>
@@ -165,7 +144,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
         {/* Footer */}
         <div className="text-center mt-6">
-          <p className="text-xs" style={{ color: '#333333', opacity: 0.6 }}>
+          <p className="text-xs text-muted-foreground">
             © 2025 BusTracker Admin Portal. All rights reserved.
           </p>
         </div>

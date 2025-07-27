@@ -5,7 +5,7 @@ import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Bus, User, Phone, LogOut, CheckCircle, Upload, Users, Camera, Trash2 } from 'lucide-react';
+import { Bus, User, Phone, LogOut, CheckCircle, Upload, Users, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 import { Banner } from './Banner';
 import { Footer } from './Footer';
@@ -31,7 +31,7 @@ interface DriverAllocationPageProps {
   onDeleteDriver: (driverId: string) => void;
 }
 
-export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, drivers, onAddDriver, onDeleteDriver }: DriverAllocationPageProps) {
+export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, drivers, onAddDriver }: DriverAllocationPageProps) {
   const [busPlate, setBusPlate] = useState('');
   const [busNumber, setBusNumber] = useState('');
   const [busPhoto, setBusPhoto] = useState<string>('');
@@ -132,7 +132,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F5F5F5' }}>
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Banner */}
       <Banner />
       
@@ -142,14 +142,14 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full" style={{ backgroundColor: '#1565C0' }}>
-                <Bus className="w-6 h-6" style={{ color: '#FFFFFF' }} />
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary">
+                <Bus className="w-6 h-6 text-primary-foreground text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#333333' }}>
+                <h1 className="text-2xl font-medium text-foreground">
                   Driver Bus Allocation
                 </h1>
-                <p className="text-sm" style={{ color: '#333333', opacity: 0.7 }}>
+                <p className="text-sm text-muted-foreground">
                   Assign drivers to buses in your fleet
                 </p>
               </div>
@@ -158,11 +158,8 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
             <div className="flex items-center gap-3">
               <Button
                 onClick={onViewDrivers}
-                className="flex items-center gap-2 transition-all duration-200 hover:opacity-90"
-                style={{ 
-                  backgroundColor: '#FFEB3B',
-                  color: '#333333'
-                }}
+                className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground transform transition-transform duration-300 
+               hover:scale-x-110"
               >
                 <Users className="w-4 h-4" />
                 View Drivers ({drivers.length})
@@ -170,11 +167,8 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
 
               <Button
                 onClick={onViewStudents}
-                className="flex items-center gap-2 transition-all duration-200 hover:opacity-90"
-                style={{ 
-                  backgroundColor: '#1565C0',
-                  color: '#FFFFFF'
-                }}
+                className="flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground transform transition-transform duration-300 
+               hover:scale-x-110"
               >
                 <User className="w-4 h-4" />
                 Manage Students
@@ -183,14 +177,10 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
               <Button
                 onClick={onLogout}
                 variant="outline"
-                className="flex items-center gap-2 border-2 hover:opacity-80"
-                style={{ 
-                  borderColor: '#E53935',
-                  color: '#E53935',
-                  backgroundColor: '#FFFFFF'
-                }}
+                className="flex items-center gap-2 border-2 border-red-500 text-red-500 hover:bg-red-100 hover:text-red-500 transform transition-transform duration-300 
+               hover:scale-x-110"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-4 h-4 text-red-500" />
                 Logout
               </Button>
             </div>
@@ -199,15 +189,15 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
           {/* Form Content */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Bus Information Card */}
-            <Card className="shadow-lg border-0" style={{ backgroundColor: '#FFFFFF' }}>
+            <Card className="shadow-lg border-0 bg-gray-100 border border-black">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg" style={{ backgroundColor: '#1565C0' }}>
-                    <Bus className="w-5 h-5" style={{ color: '#FFFFFF' }} />
+                  <div className="p-2 rounded-lg bg-primary">
+                    <Bus className="w-5 h-5 text-primary-foreground text-white" />
                   </div>
                   <div>
-                    <CardTitle style={{ color: '#333333' }}>Bus Information</CardTitle>
-                    <CardDescription style={{ color: '#333333', opacity: 0.7 }}>
+                    <CardTitle className="text-card-foreground">Bus Information</CardTitle>
+                    <CardDescription className="text-muted-foreground">
                       Enter the bus details for allocation
                     </CardDescription>
                   </div>
@@ -217,14 +207,11 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
               <CardContent className="space-y-6">
                 {/* Bus Photo Upload */}
                 <div className="space-y-2">
-                  <Label style={{ color: '#333333' }}>
+                  <Label className="text-foreground">
                     Bus Photo
                   </Label>
                   <div className="flex items-center gap-4">
-                    <div 
-                      className="w-16 h-16 rounded-lg border-2 flex items-center justify-center overflow-hidden"
-                      style={{ borderColor: '#1565C0' }}
-                    >
+                    <div className="w-16 h-16 rounded-lg border-2 border-primary flex items-center justify-center overflow-hidden">
                       {busPhoto ? (
                         <img 
                           src={busPhoto} 
@@ -232,10 +219,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div 
-                          className="w-full h-full flex items-center justify-center"
-                          style={{ backgroundColor: '#F5F5F5', color: '#333333' }}
-                        >
+                        <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground bg-blue-100">
                           <Bus className="w-6 h-6" />
                         </div>
                       )}
@@ -254,17 +238,12 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                         type="button"
                         variant="outline"
                         onClick={() => busFileInputRef.current?.click()}
-                        className="flex items-center gap-2 border-2 hover:opacity-80"
-                        style={{ 
-                          borderColor: '#1565C0',
-                          color: '#1565C0',
-                          backgroundColor: '#FFFFFF'
-                        }}
+                        className="flex items-center gap-2 border-2 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground"
                       >
-                        <Upload className="w-4 h-4" />
-                        Upload Bus Photo
+                        <Upload className="w-4 h-4 text-black" />
+                        <span className="text-black">Upload Bus Photo</span>
                       </Button>
-                      <p className="text-xs mt-1" style={{ color: '#333333', opacity: 0.7 }}>
+                      <p className="text-xs mt-1 text-muted-foreground">
                         Max file size: 5MB
                       </p>
                     </div>
@@ -272,7 +251,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="busPlate" style={{ color: '#333333' }}>
+                  <Label htmlFor="busPlate" className="text-foreground">
                     Bus Plate Number *
                   </Label>
                   <Input
@@ -281,16 +260,12 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     placeholder="e.g., ABC-1234"
                     value={busPlate}
                     onChange={(e) => setBusPlate(e.target.value)}
-                    className="border-2 focus:ring-2 transition-all"
-                    style={{ 
-                      borderColor: '#E53935',
-                      backgroundColor: '#FFFFFF'
-                    }}
+                    className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="busNumber" style={{ color: '#333333' }}>
+                  <Label htmlFor="busNumber" className="text-foreground">
                     Bus Number *
                   </Label>
                   <Input
@@ -299,27 +274,16 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     placeholder="e.g., B001"
                     value={busNumber}
                     onChange={(e) => setBusNumber(e.target.value)}
-                    className="border-2 focus:ring-2 transition-all"
-                    style={{ 
-                      borderColor: '#E53935',
-                      backgroundColor: '#FFFFFF'
-                    }}
+                    className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background"
                   />
                 </div>
 
-                <div 
-                  className="p-4 rounded-lg border-l-4"
-                  style={{ 
-                    backgroundColor: '#FFEB3B',
-                    borderLeftColor: '#1565C0',
-                    color: '#333333'
-                  }}
-                >
+                <div className="bg-secondary/10 border-l-4 border-secondary p-4 rounded-r-lg bg-blue-100">
                   <div className="flex items-center gap-2">
-                    <Bus className="w-4 h-4" style={{ color: '#1565C0' }} />
-                    <span className="font-medium">Bus Identification</span>
+                    <Bus className="w-4 h-4 text-secondary" />
+                    <span className="font-medium text-secondary-foreground">Bus Identification</span>
                   </div>
-                  <p className="mt-1 text-xs opacity-80">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Ensure the bus plate and number are accurate for proper tracking.
                   </p>
                 </div>
@@ -327,15 +291,15 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
             </Card>
 
             {/* Driver Information Card */}
-            <Card className="shadow-lg border-0" style={{ backgroundColor: '#FFFFFF' }}>
+            <Card className="shadow-lg border-0 bg-gray-100 border border-black">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg" style={{ backgroundColor: '#E53935' }}>
-                    <User className="w-5 h-5" style={{ color: '#FFFFFF' }} />
+                  <div className="p-2 rounded-lg bg-accent">
+                    <User className="w-5 h-5 text-accent-foreground" />
                   </div>
                   <div>
-                    <CardTitle style={{ color: '#333333' }}>Driver Information</CardTitle>
-                    <CardDescription style={{ color: '#333333', opacity: 0.7 }}>
+                    <CardTitle className="text-card-foreground">Driver Information</CardTitle>
+                    <CardDescription className="text-muted-foreground">
                       Enter the driver details to be assigned
                     </CardDescription>
                   </div>
@@ -345,15 +309,15 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
               <CardContent className="space-y-6">
                 {/* Driver Photo Upload */}
                 <div className="space-y-2">
-                  <Label style={{ color: '#333333' }}>
+                  <Label className="text-foreground">
                     Driver Photo
                   </Label>
                   <div className="flex items-center gap-4">
-                    <Avatar className="w-16 h-16 border-2" style={{ borderColor: '#E53935' }}>
+                    <Avatar className="w-16 h-16 border-2 border-accent">
                       {driverPhoto ? (
                         <AvatarImage src={driverPhoto} alt="Driver photo" />
                       ) : (
-                        <AvatarFallback style={{ backgroundColor: '#F5F5F5', color: '#333333' }}>
+                        <AvatarFallback className="bg-muted text-muted-foreground bg-amber-100">
                           <Camera className="w-6 h-6" />
                         </AvatarFallback>
                       )}
@@ -372,17 +336,12 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                         type="button"
                         variant="outline"
                         onClick={() => driverFileInputRef.current?.click()}
-                        className="flex items-center gap-2 border-2 hover:opacity-80"
-                        style={{ 
-                          borderColor: '#E53935',
-                          color: '#E53935',
-                          backgroundColor: '#FFFFFF'
-                        }}
+                        className="flex items-center gap-2 border-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground"
                       >
                         <Upload className="w-4 h-4" />
                         Upload Photo
                       </Button>
-                      <p className="text-xs mt-1" style={{ color: '#333333', opacity: 0.7 }}>
+                      <p className="text-xs mt-1 text-muted-foreground">
                         Max file size: 5MB
                       </p>
                     </div>
@@ -390,7 +349,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="driverName" style={{ color: '#333333' }}>
+                  <Label htmlFor="driverName" className="text-foreground">
                     Driver Name *
                   </Label>
                   <Input
@@ -399,16 +358,12 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     placeholder="Enter full name"
                     value={driverName}
                     onChange={(e) => setDriverName(e.target.value)}
-                    className="border-2 focus:ring-2 transition-all"
-                    style={{ 
-                      borderColor: '#E53935',
-                      backgroundColor: '#FFFFFF'
-                    }}
+                    className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="driverNumber" style={{ color: '#333333' }}>
+                  <Label htmlFor="driverNumber" className="text-foreground">
                     Driver Number *
                   </Label>
                   <Input
@@ -417,26 +372,16 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     placeholder="e.g., D001"
                     value={driverNumber}
                     onChange={(e) => setDriverNumber(e.target.value)}
-                    className="border-2 focus:ring-2 transition-all"
-                    style={{ 
-                      borderColor: '#E53935',
-                      backgroundColor: '#FFFFFF'
-                    }}
+                    className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="driverGender" style={{ color: '#333333' }}>
+                  <Label htmlFor="driverGender" className="text-foreground">
                     Driver Gender *
                   </Label>
                   <Select value={driverGender} onValueChange={setDriverGender}>
-                    <SelectTrigger 
-                      className="border-2 focus:ring-2 transition-all"
-                      style={{ 
-                        borderColor: '#E53935',
-                        backgroundColor: '#FFFFFF'
-                      }}
-                    >
+                    <SelectTrigger className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background">
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent>
@@ -448,22 +393,18 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="driverContact" style={{ color: '#333333' }}>
+                  <Label htmlFor="driverContact" className="text-foreground">
                     Driver Contact Number *
                   </Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: '#333333', opacity: 0.5 }} />
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       id="driverContact"
                       type="tel"
                       placeholder="Enter phone number"
                       value={driverContact}
                       onChange={(e) => setDriverContact(e.target.value)}
-                      className="border-2 focus:ring-2 transition-all pl-10"
-                      style={{ 
-                        borderColor: '#E53935',
-                        backgroundColor: '#FFFFFF'
-                      }}
+                      className="border-2 border-border focus:border-primary focus:ring-primary pl-10 transition-colors bg-input-background"
                     />
                   </div>
                 </div>
@@ -472,15 +413,15 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
           </div>
 
           {/* Allocation Form */}
-          <Card className="mt-8 shadow-lg border-0" style={{ backgroundColor: '#FFFFFF' }}>
+          <Card className="mt-8 shadow-lg border-0 bg-gray-100 border border-black">
             <CardHeader className="text-center">
               <div className="flex items-center justify-center gap-3 mb-2">
-                <div className="p-2 rounded-lg" style={{ backgroundColor: '#FFEB3B' }}>
-                  <CheckCircle className="w-5 h-5" style={{ color: '#333333' }} />
+                <div className="p-2 rounded-lg bg-success">
+                  <CheckCircle className="w-5 h-5 text-success-foreground" />
                 </div>
-                <CardTitle style={{ color: '#333333' }}>Complete Allocation</CardTitle>
+                <CardTitle className="text-card-foreground">Complete Allocation</CardTitle>
               </div>
-              <CardDescription style={{ color: '#333333', opacity: 0.7 }}>
+              <CardDescription className="text-muted-foreground">
                 Review the information and submit to allocate the driver to the bus
               </CardDescription>
             </CardHeader>
@@ -488,29 +429,17 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div 
-                    className="p-4 rounded-lg border"
-                    style={{ 
-                      backgroundColor: '#F5F5F5',
-                      borderColor: '#1565C0'
-                    }}
-                  >
-                    <h4 className="font-medium mb-2" style={{ color: '#1565C0' }}>Bus Details</h4>
-                    <p className="text-sm" style={{ color: '#333333' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
+                  <div className="bg-primary/10 border-l-4 border-primary p-4 rounded-r-lg bg-blue-100">
+                    <h4 className="font-medium mb-2 text-primary">Bus Details</h4>
+                    <p className="text-sm text-foreground">
                       Plate: {busPlate || 'Not specified'} | Number: {busNumber || 'Not specified'}
                     </p>
                   </div>
                   
-                  <div 
-                    className="p-4 rounded-lg border"
-                    style={{ 
-                      backgroundColor: '#F5F5F5',
-                      borderColor: '#E53935'
-                    }}
-                  >
-                    <h4 className="font-medium mb-2" style={{ color: '#E53935' }}>Driver Details</h4>
-                    <p className="text-sm" style={{ color: '#333333' }}>
+                  <div className="bg-accent/10 border-l-4 border-accent p-4 rounded-r-lg bg-amber-100">
+                    <h4 className="font-medium mb-2 text-accent">Driver Details</h4>
+                    <p className="text-sm text-foreground">
                       {driverName || 'Not specified'} | {driverNumber || 'Not specified'}
                     </p>
                   </div>
@@ -520,14 +449,10 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                 <div className="flex justify-center">
                   <Button
                     type="submit"
-                    className="px-8 py-3 transition-all duration-200 hover:opacity-90"
-                    style={{ 
-                      backgroundColor: '#1565C0',
-                      color: '#FFFFFF'
-                    }}
+                    className="px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200"
                   >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Allocate Driver to Bus
+                    <CheckCircle className="w-4 h-4 mr-2 text-white" />
+                    <span className='text-white'>Allocate Driver to Bus</span>
                   </Button>
                 </div>
               </form>

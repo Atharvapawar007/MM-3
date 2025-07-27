@@ -159,7 +159,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
               <Button
                 onClick={onViewDrivers}
                 className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground transform transition-transform duration-300 
-               hover:scale-x-110"
+               hover:scale-110"
               >
                 <Users className="w-4 h-4" />
                 View Drivers ({drivers.length})
@@ -168,17 +168,17 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
               <Button
                 onClick={onViewStudents}
                 className="flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground transform transition-transform duration-300 
-               hover:scale-x-110"
+               hover:scale-110"
               >
-                <User className="w-4 h-4" />
-                Manage Students
+                <User className="w-4 h-4 text-white" />
+                <span className="text-white">Manage Students</span>
               </Button>
               
               <Button
                 onClick={onLogout}
                 variant="outline"
                 className="flex items-center gap-2 border-2 border-red-500 text-red-500 hover:bg-red-100 hover:text-red-500 transform transition-transform duration-300 
-               hover:scale-x-110"
+               hover:scale-110"
               >
                 <LogOut className="w-4 h-4 text-red-500" />
                 Logout
@@ -313,11 +313,11 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     Driver Photo
                   </Label>
                   <div className="flex items-center gap-4">
-                    <Avatar className="w-16 h-16 border-2 border-accent">
+                    <Avatar className="w-16 h-16 border-2 border-accent bg-amber-100">
                       {driverPhoto ? (
                         <AvatarImage src={driverPhoto} alt="Driver photo" />
                       ) : (
-                        <AvatarFallback className="bg-muted text-muted-foreground bg-amber-100">
+                        <AvatarFallback className="bg-muted text-muted-foreground">
                           <Camera className="w-6 h-6" />
                         </AvatarFallback>
                       )}
@@ -449,9 +449,10 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                 <div className="flex justify-center">
                   <Button
                     type="submit"
-                    className="px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200"
+                    className="px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground transform transition-transform duration-300 
+               hover:scale-110"
                   >
-                    <CheckCircle className="w-4 h-4 mr-2 text-white" />
+                    <CheckCircle className="w-4 h-4 mr-2 text-white " />
                     <span className='text-white'>Allocate Driver to Bus</span>
                   </Button>
                 </div>

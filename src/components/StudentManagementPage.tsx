@@ -699,7 +699,7 @@ export function StudentManagementPage({
 
       {/* Edit Student Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg bg-white">
           <DialogHeader>
             <DialogTitle className="text-foreground">
               Edit Student Details

@@ -10,7 +10,7 @@ Follow these steps to run the project on your local machine:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Atharvapawar007/MM-3.git
+   git clone https://github.com/Atharvapawar007/MP-3.git
    ```
 2. **Navigate to the project directory:**
    ```bash

@@ -71,7 +71,7 @@ export function DriverListPage({ drivers, onBack, onLogout, onDeleteDriver }: Dr
             <Button
               onClick={onLogout}
               variant="outline"
-              className="flex items-center gap-2 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-red-500-foreground"
+              className="flex items-center gap-2 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
             >
               <LogOut className="w-4 h-4" />
               Logout
@@ -110,7 +110,7 @@ export function DriverListPage({ drivers, onBack, onLogout, onDeleteDriver }: Dr
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {drivers.map((driver, index) => (
-                <Card key={driver.id} className="shadow-card border-0 hover:shadow-elevated transition-all duration-200 bg-card">
+                <Card key={driver.id} className="shadow-card border border-gray-400 hover:shadow-lg hover:scale-105 hover:border-2 hover:border-blue-800 transition-all duration-200 bg-card">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4 mb-4">
                       <Avatar className="w-16 h-16 border-2 border-primary">
@@ -137,7 +137,7 @@ export function DriverListPage({ drivers, onBack, onLogout, onDeleteDriver }: Dr
                         variant="outline"
                         size="sm"
                         onClick={() => handleDeleteDriver(driver)}
-                        className="p-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-red-500-foreground transition-colors"
+                        className="p-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

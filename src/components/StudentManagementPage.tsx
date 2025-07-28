@@ -507,7 +507,7 @@ export function StudentManagementPage({
             /* Search Results View */
             <div className="flex flex-col">
               <div className="p-6">
-                <Card className="shadow-card border-0">
+                <Card className="shadow-lg border-black bg-gray-50">
                   <CardHeader className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
@@ -529,7 +529,7 @@ export function StudentManagementPage({
                       <Button
                         onClick={clearSearch}
                         variant="outline"
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 border-gray-300 hover:border-black"
                       >
                         <X className="w-4 h-4" />
                         Clear Search
@@ -541,10 +541,10 @@ export function StudentManagementPage({
 
               <div className="flex-1">
                 {filteredStudents.length === 0 ? (
-                  <div className="flex items-center justify-center h-96 p-6">
+                  <div className="flex justify-center h-96 p-6">
                     <div className="text-center">
-                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                        <Search className="w-6 h-6 text-muted-foreground" />
+                      <div className="w-12 h-12 rounded-full border border-black bg-gray-300 flex items-center justify-center mx-auto mb-4">
+                        <Search className="w-6 h-6 text-muted-foreground " />
                       </div>
                       <h3 className="font-medium mb-2 text-foreground">
                         No students found
@@ -564,7 +564,7 @@ export function StudentManagementPage({
                         return (
                           <Card
                             key={student.id}
-                            className="border shadow-card hover:shadow-lg transition-all duration-200"
+                            className="border shadow-card hover:shadow-lg hover:border-black hover:scale-105 transition-all duration-200"
                           >
                             <CardContent className="p-4">
                               <div className="flex items-center gap-3 mb-3">
@@ -630,9 +630,9 @@ export function StudentManagementPage({
                                   variant="outline"
                                   size="sm"
                                   onClick={() => handleDeleteStudent(student)}
-                                  className="border-red-500 text-red-500 hover:bg-red-500 hover:text-red-500-foreground"
+                                  className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 className="w-3 h-3 " />
                                 </Button>
                               </div>
                             </CardContent>

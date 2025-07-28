@@ -47,7 +47,7 @@ export function DriverListPage({ drivers, onBack, onLogout, onDeleteDriver }: Dr
               <Button
                 onClick={onBack}
                 variant="outline"
-                className="flex items-center gap-2 border-2 border-secondary text-secondary hover:bg-blue-100"
+                className="flex items-center gap-2 border-2 border-secondary text-secondary hover:bg-secondary hover:text-white"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Allocation

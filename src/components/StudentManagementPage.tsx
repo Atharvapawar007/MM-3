@@ -293,7 +293,7 @@ export function StudentManagementPage({
               <Button
                 onClick={onBack}
                 variant="outline"
-                className="flex border border-blue-800 items-center gap-2 hover:bg-blue-800/10 transition-colors"
+                className="flex items-center gap-2 border-2 border-secondary text-secondary hover:bg-secondary hover:text-white"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Allocation
@@ -312,7 +312,7 @@ export function StudentManagementPage({
             <Card className="text-center py-12 border border-gray-400 hover:border-black hover:shadow-lg transition-all duration-200 hover:scale-105 hover:bg-gray-100">
               <CardContent>
                 <div className="flex flex-col items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center">
                     <Bus className="w-6 h-6 text-muted-foreground" />
                   </div>
                   <div>
@@ -345,7 +345,7 @@ export function StudentManagementPage({
             <Button
               onClick={onBack}
               variant="outline"
-              className="flex border border-blue-800 items-center gap-2 hover:bg-blue-800/10 transition-colors"
+              className="flex items-center gap-2 border-2 border-secondary text-secondary hover:bg-secondary hover:text-white"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Allocation
@@ -388,7 +388,7 @@ export function StudentManagementPage({
             placeholder="Search students by name or PRN..."
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
-            className="pl-10 pr-10 border-2 border-border focus:border-blue-800 focus:ring-blue-800 transition-colors hover:border-black selection:text-white"
+            className="pl-10 pr-10 border-2 border-gray-300 focus:border-blue-800 focus:ring-blue-800 transition-colors hover:border-black selection:text-white"
           />
           {searchTerm && (
             <Button
@@ -675,7 +675,7 @@ export function StudentManagementPage({
 
                       <Button
                         onClick={() => setIsAddDialogOpen(true)}
-                        className="flex border border-black items-center gap-2 bg-amber-500 hover:bg-amber-500/90 text-black transition-all duration-100 hover:scale-105"
+                        className="flex border items-center gap-2 bg-amber-500 hover:bg-amber-500/90 text-black transition-all duration-100 hover:scale-105 hover:border-black"
                       >
                         <UserPlus className="w-4 h-4" />
                         Add Student Passenger
@@ -953,7 +953,7 @@ export function StudentManagementPage({
                 placeholder="Enter full name"
                 value={studentName}
                 onChange={(e) => setStudentName(e.target.value)}
-                className="border-2 border-border focus:border-blue-800 focus:ring-blue-800 transition-colors selection:text-white"
+                className="border-2 border-border focus:border-blue-800 focus:ring-blue-800 transition-colors selection:text-white hover:border-black"
               />
             </div>
 
@@ -967,7 +967,7 @@ export function StudentManagementPage({
                 placeholder="e.g., 2023001234"
                 value={studentPRN}
                 onChange={(e) => setStudentPRN(e.target.value)}
-                className="border-2 border-border focus:border-blue-800 focus:ring-blue-800 transition-colors selection:text-white"
+                className="border-2 border-border focus:border-blue-800 focus:ring-blue-800 transition-colors selection:text-white hover:border-black"
               />
             </div>
 
@@ -976,7 +976,7 @@ export function StudentManagementPage({
                 Gender *
               </Label>
               <Select value={studentGender} onValueChange={setStudentGender}>
-                <SelectTrigger className="border-2 border-border focus:border-blue-800 focus:ring-blue-800 transition-colors">
+                <SelectTrigger className="border-2 border-border focus:border-blue-800 focus:ring-blue-800 transition-colors hover:border-black">
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
                 <SelectContent>
@@ -999,7 +999,7 @@ export function StudentManagementPage({
                   placeholder="student@college.edu"
                   value={studentEmail}
                   onChange={(e) => setStudentEmail(e.target.value)}
-                  className="border-2 border-border focus:border-blue-800 focus:ring-blue-800 pl-10 transition-colors selection:text-white"
+                  className="border-2 border-border focus:border-blue-800 focus:ring-blue-800 pl-10 transition-colors selection:text-white hover:border-black"
                 />
               </div>
             </div>
@@ -1034,7 +1034,7 @@ export function StudentManagementPage({
           <div className="fixed bottom-20 right-8 z-50">
             <Button
               onClick={handleSendInvitations}
-              className="flex items-center gap-2 shadow-elevated bg-amber-500 hover:bg-amber-500/90 transition-all duration-200 hover:scale-105"
+              className="flex items-center gap-2 shadow-elevated bg-amber-500 hover:bg-amber-500/90 hover:border hover:border-black transition-all duration-200 hover:scale-105"
             >
               <Send className="w-4 h-4" />
               Send Invitations ({studentsWithoutCredentials.length})

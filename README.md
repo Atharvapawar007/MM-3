@@ -14,7 +14,7 @@ Follow these steps to run the project on your local machine:
    ```
 2. **Navigate to the project directory:**
    ```bash
-   cd MM-3
+   cd MP-3
    ```
 3. **Install dependencies:**
    ```bash

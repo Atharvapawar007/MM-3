@@ -1,4 +1,4 @@
-import collegeLogo from '../assets/CollegeLogo.png';
+import collegeLogo from '../assets/CollegeLogo.jpg';
 
 export function Banner() {
   return (
@@ -9,7 +9,7 @@ export function Banner() {
           <img
             src={collegeLogo}
             alt="KIT College of Engineering Logo"
-            className="w-20 h-20 object-contain rounded-full"
+            className="w-20 h-20 object-contain rounded-[100%]"
           />
         </div>
         

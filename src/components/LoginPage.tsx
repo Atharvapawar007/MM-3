@@ -47,13 +47,15 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           <CardHeader className="text-center pb-6">
             <div className="inline-flex items-center justify-center gap-2 mb-2">
               <Shield className="w-5 h-5 text-primary" />
-              <CardTitle className="text-card-foreground">Secure Login</CardTitle>
+              <CardTitle className="text-card-foreground">
+                Secure Login
+              </CardTitle>
             </div>
             <CardDescription className="text-muted-foreground">
               Enter your credentials to access the admin dashboard
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
@@ -68,7 +70,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background"
+                  className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background selection:text-white hover:border-black"
                 />
               </div>
 
@@ -80,12 +82,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <div className="relative">
                   <Input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="border-2 border-border focus:border-primary focus:ring-primary pr-10 transition-colors bg-input-background"
+                    className="border-2 border-border focus:border-primary focus:ring-primary pr-10 transition-colors bg-input-background selection:text-white hover:border-black"
                   />
                   <button
                     type="button"
@@ -106,11 +108,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <label className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 rounded border-2 border-border accent-primary"
+                    className="w-4 h-4 rounded border-2 border-border accent-primary selection:text-white hover:border-black"
                   />
-                  <span className="text-sm text-foreground">
-                    Remember me
-                  </span>
+                  <span className="text-sm text-foreground">Remember me</span>
                 </label>
                 <a
                   href="#"
@@ -123,16 +123,18 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               {/* Login Button */}
               <Button
                 type="submit"
-                className="w-full py-3 bg-primary hover:bg-blue-600 text-primary-foreground transition-all duration-200"
+                className="w-full py-3 bg-primary hover:scale-105 text-primary-foreground transition-all duration-200"
               >
-                <span className='text-white'>Sign In to Dashboard</span>
+                <span className="text-white">Sign In to Dashboard</span>
               </Button>
 
               {/* Admin Access Notice */}
               <div className="bg-amber-500/10 border-l-4 border-accent p-3 rounded-r-lg">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-accent text-amber-500" />
-                  <span className="font-medium text-accent-foreground">Administrative Access Only</span>
+                  <span className="font-medium text-accent-foreground">
+                    Administrative Access Only
+                  </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   This portal is restricted to authorized administrators only.

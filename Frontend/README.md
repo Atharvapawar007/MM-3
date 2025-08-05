@@ -1,6 +1,6 @@
 # TrackMyBus App
 
-This is a modern web application designed for real-time bus tracking and student management.
+This is a admin portal designed for Bus-Driver allotment and student management for the application we are designing.
 
 ---
 
@@ -48,7 +48,7 @@ Follow these steps to run the project on your local machine:
    ```bash
    nodemon src/index.js
    ```
-   The backend server will start at `localhost:3000`
+   The backend server will start at `http://localhost:3000`
 
  **Access the application:**
    Open your web browser and navigate to `http://localhost:5173` to access the application.

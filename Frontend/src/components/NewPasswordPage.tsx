@@ -8,18 +8,14 @@ import { toast } from 'sonner';
 
 interface NewPasswordPageProps {
   onPasswordReset: () => void;
+  token: string;
 }
 
-export function NewPasswordPage({ onPasswordReset }: NewPasswordPageProps) {
-  const [otp, setOtp] = useState('');
+export function NewPasswordPage({ onPasswordReset, token }: NewPasswordPageProps) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
-  // A temporary state to store the email from the forgot password page.
-  // In a real app, this would be managed more securely (e.g., using context or a URL parameter).
-  const [email, setEmail] = useState(''); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,12 +28,12 @@ export function NewPasswordPage({ onPasswordReset }: NewPasswordPageProps) {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/reset-password', {
+      const response = await fetch(`http://localhost:3000/api/auth/reset-password/${token}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, otp, newPassword }),
+        body: JSON.stringify({ password: newPassword }),
       });
 
       const data = await response.json();
@@ -46,7 +42,7 @@ export function NewPasswordPage({ onPasswordReset }: NewPasswordPageProps) {
         toast.success(data.message || 'Password reset successfully!');
         onPasswordReset(); // Navigate back to the login page
       } else {
-        toast.error(data.message || 'Failed to reset password. Please check your OTP.');
+        toast.error(data.message || 'Failed to reset password. Please try again.');
       }
     } catch (error) {
       console.error('Reset password request failed:', error);
@@ -89,47 +85,12 @@ export function NewPasswordPage({ onPasswordReset }: NewPasswordPageProps) {
               </CardTitle>
             </div>
             <CardDescription className="text-muted-foreground">
-              Enter the OTP and your new password
+              Enter and confirm your new password
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Field */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">
-                  Email Address
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="border-2 border-border focus:border-blue-600 focus:ring-blue-600 transition-colors bg-white selection:text-white hover:border-black"
-                  disabled={loading}
-                />
-              </div>
-              
-              {/* OTP Field */}
-              <div className="space-y-2">
-                <Label htmlFor="otp" className="text-foreground">
-                  6-Digit OTP
-                </Label>
-                <Input
-                  id="otp"
-                  type="text"
-                  placeholder="Enter OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  required
-                  maxLength={6}
-                  className="border-2 border-border focus:border-blue-600 focus:ring-blue-600 transition-colors bg-white selection:text-white hover:border-black"
-                  disabled={loading}
-                />
-              </div>
-
               {/* New Password Field */}
               <div className="space-y-2">
                 <Label htmlFor="new-password" className="text-foreground">

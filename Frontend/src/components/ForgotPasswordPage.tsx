@@ -31,10 +31,10 @@ export function ForgotPasswordPage({ onOtpSent, onBackToLogin }: ForgotPasswordP
       const data = await response.json();
 
       if (response.ok) {
-        toast.success(data.message || 'OTP sent to your email.');
-        onOtpSent(); // Navigate to the NewPasswordPage
+        toast.success(data.message || 'Password reset link sent to your email.');
+        onOtpSent(); // This would now navigate to a page awaiting the user's action
       } else {
-        toast.error(data.message || 'Failed to send OTP. Please try again.');
+        toast.error(data.message || 'Failed to send reset link. Please try again.');
       }
     } catch (error) {
       console.error('Forgot password request failed:', error);
@@ -77,7 +77,7 @@ export function ForgotPasswordPage({ onOtpSent, onBackToLogin }: ForgotPasswordP
               </CardTitle>
             </div>
             <CardDescription className="text-muted-foreground">
-              Enter your email to receive a 6-digit OTP
+              Enter your email to receive a password reset link
             </CardDescription>
           </CardHeader>
 
@@ -100,7 +100,7 @@ export function ForgotPasswordPage({ onOtpSent, onBackToLogin }: ForgotPasswordP
                 />
               </div>
 
-              {/* Send OTP Button */}
+              {/* Send Reset Link Button */}
               <Button
                 type="submit"
                 className="w-full py-3 bg-blue-600 hover:scale-105 text-white transition-all duration-200"
@@ -109,7 +109,7 @@ export function ForgotPasswordPage({ onOtpSent, onBackToLogin }: ForgotPasswordP
                 {loading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  'Send OTP'
+                  'Send Reset Link'
                 )}
               </Button>
               

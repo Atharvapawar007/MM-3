@@ -1,14 +1,30 @@
 import nodemailer from 'nodemailer';
 
+// Explicitly convert types from environment variables
+const EMAIL_PORT = parseInt(process.env.EMAIL_PORT || "465");
+const EMAIL_SECURE = process.env.EMAIL_SECURE === "true";
+
+// Debug logs to ensure correct values
+console.log("🔍 EMAIL CONFIGURATION DEBUG:");
+console.log("EMAIL_HOST:", process.env.EMAIL_HOST || 'UNDEFINED');
+console.log("EMAIL_PORT:", process.env.EMAIL_PORT || 'UNDEFINED');
+console.log("EMAIL_SECURE:", process.env.EMAIL_SECURE || 'UNDEFINED');
+console.log("EMAIL_USER:", process.env.EMAIL_USER || 'UNDEFINED');
+console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? '[SET]' : 'UNDEFINED');
+console.log("EMAIL_FROM:", process.env.EMAIL_FROM || 'UNDEFINED');
+console.log("Parsed PORT:", EMAIL_PORT);
+console.log("Parsed SECURE:", EMAIL_SECURE);
 // ================================================================
 // Nodemailer Transporter Configuration
 // Configure your SMTP settings here.
 // In a real application, these should be stored in your .env file.
 // ================================================================
+console.log("Transporter Auth User:", process.env.EMAIL_USER);
+console.log("Transporter Auth Pass:", process.env.EMAIL_PASS ? '[SET]' : '[NOT SET]');
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    secure: process.env.EMAIL_SECURE === 'true', // Use 'true' for port 465, 'false' for other ports
+    port: parseInt(process.env.EMAIL_PORT), // 🔧 convert to number
+    secure: process.env.EMAIL_SECURE === 'true', // ✅ convert string to boolean
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -16,26 +32,27 @@ const transporter = nodemailer.createTransport({
 });
 
 // ================================================================
-// Sends a 6-digit OTP to a user's email for password reset.
+// Sends a secure password reset link to a user's email.
 // @param {string} email - The recipient's email address.
-// @param {string} otp - The 6-digit OTP.
+// @param {string} resetURL - The secure URL with the JWT token.
 // @returns {Promise<object>} An object containing the success status.
 // ================================================================
-export const sendOTP = async (email, otp) => {
+export const sendPasswordResetEmail = async (email, resetURL) => {
     const mailOptions = {
         from: process.env.EMAIL_FROM,
         to: email,
-        subject: 'BusTracker Admin Portal - Password Reset OTP',
+        subject: 'BusTracker Admin Portal - Password Reset Request',
         html: `
             <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                 <h2 style="color: #1e3a8a;">Password Reset Request</h2>
                 <p>Hello,</p>
-                <p>We received a request to reset your password. Please use the following OTP to proceed:</p>
+                <p>We received a request to reset your password. Please click the button below to set a new one:</p>
                 <div style="text-align: center; margin: 30px 0;">
-                    <span style="font-size: 24px; font-weight: bold; padding: 10px 20px; background-color: #f3f4f6; border-radius: 8px;">${otp}</span>
+                    <a href="${resetURL}" style="background-color: #1e3a8a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                        Reset Your Password
+                    </a>
                 </div>
-                <p>This OTP is valid for 5 minutes. Do not share it with anyone.</p>
-                <p>If you did not request a password reset, please ignore this email.</p>
+                <p>This link will expire in 1 hour. If you did not request a password reset, please ignore this email.</p>
                 <hr style="border: 0; border-top: 1px solid #e5e7eb; margin-top: 20px;">
                 <p style="font-size: 12px; color: #6b7280;">BusTracker Admin Portal</p>
             </div>
@@ -44,10 +61,10 @@ export const sendOTP = async (email, otp) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`OTP sent to ${email}`);
+        console.log(`Password reset link sent to ${email}`);
         return { success: true };
     } catch (error) {
-        console.error(`Failed to send OTP to ${email}:`, error);
+        console.error(`Failed to send password reset email to ${email}:`, error);
         return { success: false, error };
     }
 };

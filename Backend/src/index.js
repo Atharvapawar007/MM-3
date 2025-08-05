@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -5,6 +6,12 @@ import connectDB from './services/database.js';
 
 // Load environment variables from .env file
 dotenv.config();
+
+console.log("🔍 [index.js] ENVIRONMENT VARIABLE DEBUG:");
+console.log("------------------------------------------");
+console.log("EMAIL_HOST from process.env:", process.env.EMAIL_HOST); // Log this
+console.log("RESET_PASSWORD_SECRET from process.env:", process.env.RESET_PASSWORD_SECRET); // Log this
+console.log("------------------------------------------");
 
 // Connect to MongoDB
 connectDB();

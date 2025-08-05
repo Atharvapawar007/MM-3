@@ -1,4 +1,4 @@
-# BusTrack App
+# TrackMyBus App
 
 This is a modern web application designed for real-time bus tracking and student management.
 

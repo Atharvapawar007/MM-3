@@ -1,313 +1,59 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Dark mode variant replacement for @custom-variant */
-@layer base {
-  .dark & {
-    /* Dark mode styles will still work with the .dark class */
-  }
-}
-
-:root {
-  --font-size: 14px;
-
-  /* New Color Palette */
-  --background: #F9FAFB;
-  --foreground: #111827;
-  --card: #ffffff;
-  --card-foreground: #111827;
-  --popover: #ffffff;
-  --popover-foreground: #111827;
-
-  /* Primary Brand Color */
-  --primary: #1E3A8A;
-  --primary-foreground: #ffffff;
-
-  /* Secondary Color */
-  --secondary: #3B82F6;
-  --secondary-foreground: #ffffff;
-
-  /* Muted Colors */
-  --muted: #F3F4F6;
-  --muted-foreground: #6B7280;
-
-  /* Accent Color */
-  --accent: #F59E0B;
-  --accent-foreground: #111827;
-
-  /* Error/Destructive */
-  --destructive: #EF4444;
-  --destructive-foreground: #ffffff;
-
-  /* Success */
-  --success: #10B981;
-  --success-foreground: #ffffff;
-
-  /* Border and Input */
-  --border: #E5E7EB;
-  --input: transparent;
-  --input-background: #ffffff;
-  --switch-background: #D1D5DB;
-
-  /* Font Weights */
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-
-  /* Ring/Focus */
-  --ring: #3B82F6;
-
-  /* Chart Colors */
-  --chart-1: #1E3A8A;
-  --chart-2: #3B82F6;
-  --chart-3: #F59E0B;
-  --chart-4: #10B981;
-  --chart-5: #EF4444;
-
-  /* Border Radius */
-  --radius: 0.5rem;
-
-  /* Sidebar */
-  --sidebar: #ffffff;
-  --sidebar-foreground: #111827;
-  --sidebar-primary: #1E3A8A;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #F9FAFB;
-  --sidebar-accent-foreground: #111827;
-  --sidebar-border: #E5E7EB;
-  --sidebar-ring: #3B82F6;
-}
-
-.dark {
-  --background: #0F172A;
-  --foreground: #F8FAFC;
-  --card: #1E293B;
-  --card-foreground: #F8FAFC;
-  --popover: #1E293B;
-  --popover-foreground: #F8FAFC;
-
-  /* Primary Brand Color */
-  --primary: #3B82F6;
-  --primary-foreground: #F8FAFC;
-
-  /* Secondary Color */
-  --secondary: #1E40AF;
-  --secondary-foreground: #F8FAFC;
-
-  /* Muted Colors */
-  --muted: #334155;
-  --muted-foreground: #94A3B8;
-
-  /* Accent Color */
-  --accent: #F59E0B;
-  --accent-foreground: #0F172A;
-
-  /* Error/Destructive */
-  --destructive: #EF4444;
-  --destructive-foreground: #F8FAFC;
-
-  /* Success */
-  --success: #10B981;
-  --success-foreground: #F8FAFC;
-
-  /* Border and Input */
-  --border: #334155;
-  --input: #334155;
-  --input-background: #1E293B;
-  --switch-background: #475569;
-
-  /* Ring/Focus */
-  --ring: #3B82F6;
-
-  /* Chart Colors */
-  --chart-1: #3B82F6;
-  --chart-2: #60A5FA;
-  --chart-3: #FBBF24;
-  --chart-4: #34D399;
-  --chart-5: #F87171;
-
-  /* Sidebar */
-  --sidebar: #1E293B;
-  --sidebar-foreground: #F8FAFC;
-  --sidebar-primary: #3B82F6;
-  --sidebar-primary-foreground: #F8FAFC;
-  --sidebar-accent: #334155;
-  --sidebar-accent-foreground: #F8FAFC;
-  --sidebar-border: #334155;
-  --sidebar-ring: #3B82F6;
-}
-
-/* Tailwind-compatible theme variables */
+ 
 @layer base {
   :root {
-    --tw-ring-color: var(--ring);
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
   }
 }
 
 @layer base {
   * {
-    border-color: var(--border);
+    @apply border-border;
   }
-
   body {
-    background-color: var(--background);
-    color: var(--foreground);
-  }
-
-  /* Enhanced transitions for better UX */
-  button,
-  a,
-  [role="button"] {
-    @apply transition-all duration-200 ease-in-out;
-  }
-
-  /* Shadows */
-  .card-shadow {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1),
-                0 1px 2px -1px rgb(0 0 0 / 0.1);
-  }
-
-  .card-shadow-lg {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-                0 4px 6px -4px rgb(0 0 0 / 0.1);
-  }
-
-  input:focus,
-  select:focus,
-  textarea:focus {
-    @apply ring-2 ring-offset-2;
-    --tw-ring-color: var(--ring);
-    --tw-ring-offset-color: var(--background);
-  }
-
-  /* Success state utility */
-  .text-success {
-    color: var(--success);
-  }
-
-  .bg-success {
-    background-color: var(--success);
-  }
-
-  .border-success {
-    border-color: var(--success);
-  }
-}
-
-/* Base Typography */
-@layer base {
-  h1 {
-    font-size: 1.5rem;
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-    color: var(--foreground);
-  }
-
-  h2 {
-    font-size: 1.25rem;
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-    color: var(--foreground);
-  }
-
-  h3 {
-    font-size: 1.125rem;
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-    color: var(--foreground);
-  }
-
-  h4 {
-    font-size: 1rem;
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-    color: var(--foreground);
-  }
-
-  p,
-  label,
-  button,
-  input {
-    font-size: 1rem;
-    line-height: 1.5;
-    color: var(--foreground);
-  }
-
-  label,
-  button {
-    font-weight: var(--font-weight-medium);
-  }
-
-  input {
-    font-weight: var(--font-weight-normal);
-  }
-}
-
-html {
-  font-size: var(--font-size);
-}
-
-/* Custom Utilities */
-@layer utilities {
-  .text-primary {
-    color: var(--primary);
-  }
-
-  .text-secondary {
-    color: var(--secondary);
-  }
-
-  .bg-primary {
-    background-color: var(--primary);
-  }
-
-  .bg-secondary {
-    background-color: var(--secondary);
-  }
-
-  .bg-accent {
-    background-color: var(--accent);
-  }
-
-  .bg-error {
-    background-color: var(--destructive);
-  }
-
-  .border-primary {
-    border-color: var(--primary);
-  }
-
-  .border-secondary {
-    border-color: var(--secondary);
-  }
-
-  .border-accent {
-    border-color: var(--accent);
-  }
-
-  .hover\:bg-primary\/90:hover {
-    background-color: rgb(30 58 138 / 0.9);
-  }
-
-  .hover\:bg-secondary\/90:hover {
-    background-color: rgb(59 130 246 / 0.9);
-  }
-
-  .hover\:bg-accent\/90:hover {
-    background-color: rgb(245 158 11 / 0.9);
-  }
-
-  .shadow-soft {
-    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.06);
-  }
-
-  .shadow-card {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1),
-                0 1px 2px -1px rgb(0 0 0 / 0.1);
-  }
-
-  .shadow-elevated {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-                0 2px 4px -2px rgb(0 0 0 / 0.1);
+    @apply bg-background text-foreground;
   }
 }

@@ -48,8 +48,8 @@ Follow these steps to run the project on your local machine:
    ```bash
    nodemon src/index.js
    ```
-   The backend server will start at `localhost:3000`
+   The backend server will start at `https://localhost:3000`
 
  **Access the application:**
-   Open your web browser and navigate to `http://localhost:5173` to access the application.
+   Open your web browser and navigate to `https://localhost:5173` to access the application.
 

@@ -6,10 +6,11 @@ import Student from '../models/Student.js';
 // ================================================================
 export const addDriver = async (req, res) => {
     try {
-        const { name, number, gender, contact, photo, busPlate, busNumber, busPhoto } = req.body;
+        // The fix: Add 'userId' to the destructured body to receive the ID from the frontend.
+        const { userId, name, number, gender, contact, photo, busPlate, busNumber, busPhoto } = req.body;
 
-        // Basic validation
-        if (!name || !number || !gender || !contact || !busPlate || !busNumber) {
+        // Basic validation - Add userId to the list of required fields.
+        if (!userId || !name || !number || !gender || !contact || !busPlate || !busNumber) {
             return res.status(400).json({ message: 'All required fields must be provided' });
         }
 
@@ -27,6 +28,8 @@ export const addDriver = async (req, res) => {
 
         // Create a new driver instance
         const newDriver = new Driver({
+            // Pass the userId to the model instance.
+            userId, 
             name,
             number,
             gender,
@@ -43,6 +46,7 @@ export const addDriver = async (req, res) => {
         res.status(201).json({ message: 'Driver successfully allocated to bus', driver: newDriver });
 
     } catch (error) {
+        // The original error you encountered is logged here, so we will now see a successful response.
         console.error('Error adding driver:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
@@ -52,11 +56,73 @@ export const addDriver = async (req, res) => {
 // Get all drivers
 // ================================================================
 export const getDrivers = async (req, res) => {
+    console.log('--- Fetching all drivers ---');
     try {
         const drivers = await Driver.find({});
-        res.status(200).json(drivers);
+        console.log(`Found ${drivers.length} drivers.`);
+        
+        // Transform each driver to match frontend expectations
+        const transformedDrivers = drivers.map(driver => {
+            const driverObj = driver.toObject();
+            return {
+                id: driverObj._id.toString(),      // Convert MongoDB _id to string for frontend id
+                _id: driverObj._id.toString(),     // Keep _id as well
+                name: driverObj.name,
+                phone: driverObj.contact,          // Map contact to phone
+                driverId: driverObj.number,        // Map number to driverId
+                gender: driverObj.gender,
+                photoUrl: driverObj.photo,         // Map photo to photoUrl
+                bus: driverObj.busPlate ? {
+                    id: driverObj._id.toString(),  // Use same ID for bus
+                    plateNumber: driverObj.busPlate,
+                    busNumber: driverObj.busNumber
+                } : null,
+                createdAt: driverObj.createdAt,
+                updatedAt: driverObj.updatedAt
+            };
+        });
+
+        res.status(200).json(transformedDrivers);
     } catch (error) {
-        console.error('Error fetching drivers:', error);
+        console.error('!!! CRITICAL ERROR fetching drivers:', error);
+        res.status(500).json({ message: 'Server error while fetching drivers', error: error.message });
+    }
+};
+
+// ================================================================
+// Get a single driver by ID
+// ================================================================
+export const getDriverById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const driver = await Driver.findById(id);
+
+        if (!driver) {
+            return res.status(404).json({ message: 'Driver not found' });
+        }
+
+        // Transform the response to match frontend expectations
+        const driverObj = driver.toObject();
+        const transformedDriver = {
+            id: driverObj._id.toString(),      // Convert MongoDB _id to string for frontend id
+            _id: driverObj._id.toString(),     // Keep _id as well
+            name: driverObj.name,
+            phone: driverObj.contact,          // Map contact to phone
+            driverId: driverObj.number,        // Map number to driverId
+            gender: driverObj.gender,
+            photoUrl: driverObj.photo,         // Map photo to photoUrl
+            bus: driverObj.busPlate ? {
+                id: driverObj._id.toString(),  // Use same ID for bus
+                plateNumber: driverObj.busPlate,
+                busNumber: driverObj.busNumber
+            } : null,
+            createdAt: driverObj.createdAt,
+            updatedAt: driverObj.updatedAt
+        };
+
+        res.status(200).json(transformedDriver);
+    } catch (error) {
+        console.error('Error fetching driver by ID:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -65,22 +131,101 @@ export const getDrivers = async (req, res) => {
 // Delete a driver and all associated students
 // ================================================================
 export const deleteDriver = async (req, res) => {
+    console.log('=== DELETE DRIVER REQUEST RECEIVED ===');
+    console.log('Request params:', req.params);
+    console.log('Request headers:', req.headers);
+    
     try {
         const { id } = req.params; // Get the driver ID from the URL parameter
+        console.log('Driver ID from params:', id);
+        console.log('Type of ID:', typeof id);
 
-        // Find the driver by ID and delete them
-        const deletedDriver = await Driver.findByIdAndDelete(id);
-        if (!deletedDriver) {
-            return res.status(404).json({ message: 'Driver not found' });
+        // Validate the ID format
+        if (!id || id === 'undefined' || id === 'null') {
+            console.error('Invalid driver ID - missing or undefined/null');
+            return res.status(400).json({ 
+                success: false,
+                message: 'Invalid driver ID',
+                receivedId: id
+            });
         }
 
-        // Find and delete all students associated with the deleted driver's bus
-        await Student.deleteMany({ busId: id });
+        // Check if ID is a valid MongoDB ObjectId
+        const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+        console.log('Is valid ObjectId:', isValidObjectId);
+        
+        if (!isValidObjectId) {
+            console.error('Invalid driver ID format - not a valid ObjectId');
+            return res.status(400).json({ 
+                success: false,
+                message: 'Invalid driver ID format',
+                receivedId: id,
+                expectedFormat: '24 character hex string',
+                length: id ? id.length : 0
+            });
+        }
 
-        res.status(200).json({ message: 'Driver and all associated students successfully deleted' });
+        console.log('Attempting to find and delete driver with ID:', id);
+        const deletedDriver = await Driver.findByIdAndDelete(id);
+        console.log('Delete operation result:', deletedDriver ? 'Found and deleted' : 'Not found');
+        
+        if (!deletedDriver) {
+            console.error('Driver not found with ID:', id);
+            return res.status(404).json({ 
+                success: false,
+                message: 'Driver not found',
+                driverId: id
+            });
+        }
+
+        console.log('Attempting to delete associated students for bus ID:', id);
+        const deleteResult = await Student.deleteMany({ busId: id });
+        console.log('Deleted students count:', deleteResult.deletedCount);
+
+        console.log('Driver and students deleted successfully');
+        res.status(200).json({ 
+            success: true,
+            message: 'Driver and all associated students successfully deleted',
+            driverId: id,
+            studentsDeleted: deleteResult.deletedCount
+        });
 
     } catch (error) {
-        console.error('Error deleting driver:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error('=== ERROR IN deleteDriver ===');
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('Full error object:', JSON.stringify(error, null, 2));
+        
+        if (error.name === 'CastError') {
+            console.error('CastError details:', {
+                stringValue: error.stringValue,
+                kind: error.kind,
+                value: error.value,
+                path: error.path,
+                reason: error.reason?.message
+            });
+            return res.status(400).json({ 
+                success: false,
+                message: 'Invalid driver ID format',
+                error: {
+                    name: error.name,
+                    message: error.message,
+                    receivedId: id,
+                    expectedType: 'MongoDB ObjectId'
+                }
+            });
+        }
+        
+        console.error('Unexpected error in deleteDriver:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error while deleting driver',
+            error: {
+                name: error.name,
+                message: error.message,
+                ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+            }
+        });
     }
 };

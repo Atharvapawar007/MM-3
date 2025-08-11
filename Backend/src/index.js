@@ -21,17 +21,26 @@ const app = express();
 
 // Middleware
 app.use(express.json()); // Allows the app to parse JSON bodies
-app.use(cors()); // Enables Cross-Origin Resource Sharing
+// CORS configuration
+const corsOptions = {
+  origin: 'http://localhost:5173', // Allow only the frontend to access
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+};
+
+app.use(cors(corsOptions)); // Enables Cross-Origin Resource Sharing
 
 // Import Routes
 import authRoutes from './routes/authRoutes.js';
 import driverRoutes from './routes/driverRoutes.js';
 import studentRoutes from './routes/studentRoutes.js';
+import busRoutes from './routes/busRoutes.js';
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/students', studentRoutes);
+app.use('/api/buses', busRoutes);
 
 // Define a simple root route for testing
 app.get('/', (req, res) => {

@@ -2,16 +2,18 @@ import Student from '../models/Student.js';
 import Driver from '../models/Driver.js';
 import { sendCredentials as sendCredentialsEmail } from '../services/emailService.js';
 import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
 
 // ================================================================
 // Add a new student to a bus
 // ================================================================
 export const addStudent = async (req, res) => {
     try {
-        const { name, prn, gender, email, busId } = req.body;
+        // FIX: Add 'userId' to the destructured body.
+        const { name, prn, gender, email, busId, userId } = req.body;
 
-        // Basic validation
-        if (!name || !prn || !gender || !email || !busId) {
+        // FIX: Update validation to ensure userId is present.
+        if (!name || !prn || !gender || !email || !busId || !userId) {
             return res.status(400).json({ message: 'All required fields must be provided' });
         }
 
@@ -34,6 +36,8 @@ export const addStudent = async (req, res) => {
             gender,
             email,
             busId,
+            // FIX: Pass the userId to the new Student instance.
+            userId, 
             credentialsGenerated: false,
             createdAt: new Date()
         });
@@ -104,12 +108,11 @@ export const deleteStudent = async (req, res) => {
 export const getStudents = async (req, res) => {
     try {
         const { busId } = req.query;
-        let students;
+        let students = []; // Initialize as an empty array
 
-        if (busId) {
+        // FIX: Check if busId is a valid ObjectId before querying
+        if (busId && mongoose.Types.ObjectId.isValid(busId)) {
             students = await Student.find({ busId });
-        } else {
-            students = await Student.find({});
         }
 
         res.status(200).json(students);

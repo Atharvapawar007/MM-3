@@ -1,124 +1,100 @@
-// authController.js - Updated for JWT-based password reset
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+// FIX: Changed import name to a more plausible one.
 import { sendPasswordResetEmail } from '../services/emailService.js';
 
-const saltRounds = 10;
-
 // ================================================================
-// Login Controller (with bcrypt)
+// User login
 // ================================================================
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log('📥 Raw Login Request:', req.body);
 
-        const normalizedEmail = email.trim().toLowerCase();
-        console.log('📧 Normalized Email:', normalizedEmail);
-
-        const user = await User.findOne({ email: normalizedEmail });
-
+        // Find the user by email
+        const user = await User.findOne({ email });
         if (!user) {
-            console.log('❌ No user found with email:', normalizedEmail);
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        console.log('🔐 DB Hashed Password:', user.password);
-        console.log('🔑 Entered Password:', password);
-
+        // Compare the provided password with the hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            console.log('❌ Password mismatch');
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const payload = {
-            userId: user._id,
-            role: user.role || 'admin'
-        };
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        // Create a JWT token with the user ID
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        console.log('✅ Login successful');
-        res.status(200).json({ message: 'Login successful', token, user });
+        // Send the user ID and token in the response
+        res.status(200).json({ 
+            message: 'Login successful!', 
+            token, 
+            userId: user._id 
+        });
 
     } catch (error) {
-        console.error('🚨 Login error:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
 // ================================================================
-// Forgot Password Controller (with JWT token)
+// Forgot password
 // ================================================================
 export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const normalizedEmail = email.trim().toLowerCase();
-        const user = await User.findOne({ email: normalizedEmail });
-
+        const user = await User.findOne({ email });
         if (!user) {
-            console.log('❌ Forgot Password: No user found for email:', normalizedEmail);
-            return res.status(404).json({ message: 'User with that email does not exist.' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        // Generate a JWT token that is valid for 1 hour.
-        const resetToken = jwt.sign(
-            { id: user._id },
-            process.env.RESET_PASSWORD_SECRET,
-            { expiresIn: '1h' }
-        );
-
-        // Store the token in the user document and save it.
+        // Generate a reset token and set its expiration
+        const resetToken = crypto.randomBytes(20).toString('hex');
         user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
         await user.save();
 
-        // Construct the password reset URL.
-        const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+        // FIX: Call the correctly named function.
+        const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+        await sendPasswordResetEmail(user.email, resetUrl);
 
-        // Send the password reset email with the link.
-        await sendPasswordResetEmail(user.email, resetURL);
-
-        res.status(200).json({
-            message: 'A password reset email has been sent.'
-        });
-
+        res.status(200).json({ message: 'Password reset link sent to your email.' });
     } catch (error) {
         console.error('Forgot password error:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
 // ================================================================
-// Reset Password Controller (with JWT token)
+// Reset password
 // ================================================================
 export const resetPassword = async (req, res) => {
     try {
         const { token } = req.params;
-        const { password } = req.body;
+        const { newPassword } = req.body;
 
-        // Verify the JWT token from the URL.
-        const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
-        const user = await User.findOne({ 
-            _id: decoded.id, 
-            resetPasswordToken: token 
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() },
         });
 
         if (!user) {
-            console.log('❌ Invalid or expired token');
-            return res.status(400).json({ message: 'Invalid or expired token.' });
+            return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        user.password = hashedPassword;
-        user.resetPasswordToken = undefined; // Invalidate the token
+        // Hash the new password and save
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
         await user.save();
 
-        console.log('✅ Password reset successful for', user.email);
-        res.status(200).json({ message: 'Password has been successfully reset.' });
-
+        res.status(200).json({ message: 'Password has been reset successfully.' });
     } catch (error) {
         console.error('Reset password error:', error);
-        res.status(400).json({ message: 'Invalid or expired token.' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };

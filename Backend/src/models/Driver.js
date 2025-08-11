@@ -17,6 +17,7 @@ const DriverSchema = new Schema({
         type: String,
         required: true,
         enum: ['male', 'female', 'other'],
+        lowercase: true,
     },
     contact: {
         type: String,

@@ -4,7 +4,7 @@ export interface Bus {
   busNumber: string;
   plateNumber: string;
   driverId?: string;
-  photo?: string;
+  busPhoto?: string;
   driverName: string;
   driverContact: string;
   createdAt?: string;

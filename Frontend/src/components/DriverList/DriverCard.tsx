@@ -26,7 +26,7 @@ export function DriverCard({ driver, index, onSelect, onDelete, isDeleting = fal
     <Card 
       key={driver.id}
       onClick={() => onSelect(driver)}
-      className="shadow-card border-0 hover:shadow-elevated transition-all duration-200 bg-card cursor-pointer"
+      className="shadow-card border-2 hover:shadow-elevated transition-all duration-200 bg-card cursor-pointer"
     >
       <CardContent className="p-6">
         <div className="flex items-center gap-4 mb-4">
@@ -62,14 +62,14 @@ export function DriverCard({ driver, index, onSelect, onDelete, isDeleting = fal
 
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <Phone className="w-4 h-4 text-secondary" />
+            <Phone className="w-4 h-4 text-blue-700" />
             <span className="text-sm text-foreground">
               {driver.phone || 'N/A'}
             </span>
           </div>
           
           <div className="flex items-center gap-3">
-            <User className="w-4 h-4 text-secondary" />
+            <User className="w-4 h-4 text-blue-700" />
             <span className="text-sm capitalize text-foreground">
               {driver.gender || 'N/A'}
             </span>
@@ -98,7 +98,7 @@ export function DriverCard({ driver, index, onSelect, onDelete, isDeleting = fal
         )}
 
         <div className="mt-4 flex justify-center">
-          <div className="px-3 py-1 rounded-full text-xs font-medium bg-accent text-accent-foreground">
+          <div className="px-3 py-1 rounded-full text-xs font-medium bg-amber-400 text-accent-foreground">
             Active Driver #{index + 1}
           </div>
         </div>

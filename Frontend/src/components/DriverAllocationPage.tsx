@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Bus, User, Phone, LogOut, CheckCircle, Upload, Users, Camera, Loader2, RefreshCcw } from 'lucide-react';
+import { Bus, User, Phone, LogOut, CheckCircle, Upload, Users, Camera, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Banner } from './Banner';
 import { Footer } from './Footer';
@@ -160,7 +160,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#1e3a8a]">
                 <Bus className="w-6 h-6 text-primary-foreground text-white" />
               </div>
               <div>
@@ -174,25 +174,21 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
             </div>
 
             <div className="flex items-center gap-3">
-              <Button
-                onClick={onViewDrivers}
-                className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground transform transition-transform duration-300 
-                hover:scale-110"
-              >
-                <Users className="w-4 h-4" />
-                View Drivers ({drivers.length})
-              </Button>
-
-              <Button
+              <Button
+                onClick={onViewDrivers}
+                className="flex items-center gap-2 bg-[#1e3a8a] text-white hover:bg-blue-600 transform transition-transform duration-300 hover:scale-110"
+              >
+                <Users className="w-4 h-4" />
+                View Drivers ({drivers.length})
+              </Button>
+              <Button
                 onClick={onViewStudents}
-                className="flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground transform transition-transform duration-300 
-                hover:scale-110"
-              >
-                <User className="w-4 h-4 text-white" />
-                <span className="text-white">Manage Students</span>
-              </Button>
-
-              <Button
+                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-secondary-foreground transform transition-transform duration-300 hover:scale-110"
+              >
+                <User className="w-4 h-4 text-white" />
+                <span className="text-white">Manage Students</span>
+              </Button>
+              <Button
                 onClick={onLogout}
                 variant="outline"
                 className="flex items-center gap-2 border-2 border-red-500 text-red-500 hover:text-white hover:bg-red-500 transform transition-transform duration-300 
@@ -210,7 +206,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
             <Card className="shadow-lg bg-gray-100 border border-black">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary">
+                  <div className="p-2 rounded-lg bg-[#1e3a8a]">
                     <Bus className="w-5 h-5 text-primary-foreground text-white" />
                   </div>
                   <div>
@@ -229,7 +225,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                 <div className="space-y-2">
                   <Label className="text-foreground">Bus Photo</Label>
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg border-2 border-primary flex items-center justify-center overflow-hidden">
+                    <div className="w-16 h-16 rounded-lg border-2 border-[#1e3a8a] flex items-center justify-center overflow-hidden">
                       {busPhoto ? (
                         <img
                           src={busPhoto}
@@ -237,7 +233,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground bg-blue-100">
+                        <div className="w-full h-full flex items-center justify-center bg-blue-100 text-muted-foreground">
                           <Bus className="w-6 h-6" />
                         </div>
                       )}
@@ -256,7 +252,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                         type="button"
                         variant="outline"
                         onClick={() => busFileInputRef.current?.click()}
-                        className="flex items-center gap-2 border-2 border-secondary text-secondary hover:bg-secondary hover:text-white"
+                                                className="flex items-center gap-2 border-2 border-[#1e3a8a] text-[#1e3a8a] hover:bg-[#1e3a8a] hover:text-white transform transition-transform duration-300 hover:scale-105"
                       >
                         <Upload className="w-4 h-4" />
                         <span>Upload Bus Photo</span>
@@ -279,7 +275,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     value={busPlate}
                     onChange={(e) => setBusPlate(e.target.value)}
                     required
-                    className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background selection:text-white hover:border-black"
+                    className="border-2 border-border focus:border-[#1e3a8a] focus:ring-[#1e3a8a] transition-colors bg-input-background selection:text-white hover:border-black"
                   />
                 </div>
 
@@ -294,7 +290,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     value={busNumber}
                     onChange={(e) => setBusNumber(e.target.value)}
                     required
-                    className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background selection:text-white hover:border-black"
+                    className="border-2 border-border focus:border-[#1e3a8a] focus:ring-[#1e3a8a] transition-colors bg-input-background selection:text-white hover:border-black"
                   />
                 </div>
 
@@ -317,8 +313,8 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
             <Card className="shadow-lg bg-gray-100 border border-black">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-accent">
-                    <User className="w-5 h-5 text-accent-foreground" />
+                  <div className="p-2 rounded-lg bg-amber-500">
+                    <User className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <CardTitle className="text-card-foreground">
@@ -340,7 +336,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                       {driverPhoto ? (
                         <AvatarImage src={driverPhoto} alt="Driver photo" />
                       ) : (
-                        <AvatarFallback className="bg-muted text-muted-foreground">
+                        <AvatarFallback className="bg-amber-100 text-muted-foreground border-2 border-amber-500">
                           <Camera className="w-6 h-6" />
                         </AvatarFallback>
                       )}
@@ -359,7 +355,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                         type="button"
                         variant="outline"
                         onClick={() => driverFileInputRef.current?.click()}
-                        className="flex items-center gap-2 border-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground"
+                                                className="flex items-center gap-2 border-2 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white transform transition-transform duration-300 hover:scale-105"
                       >
                         <Upload className="w-4 h-4" />
                         Upload Photo
@@ -382,7 +378,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     value={driverName}
                     onChange={(e) => setDriverName(e.target.value)}
                     required
-                    className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background selection:text-white hover:border-black"
+                    className="border-2 border-border focus:border-[#1e3a8a] focus:ring-[#1e3a8a] transition-colors bg-input-background selection:text-white hover:border-black"
                   />
                 </div>
 
@@ -397,7 +393,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     value={driverNumber}
                     onChange={(e) => setDriverNumber(e.target.value)}
                     required
-                    className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background selection:text-white hover:border-black"
+                    className="border-2 border-border focus:border-[#1e3a8a] focus:ring-[#1e3a8a] transition-colors bg-input-background selection:text-white hover:border-black"
                   />
                 </div>
 
@@ -406,7 +402,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     Driver Gender *
                   </Label>
                   <Select value={driverGender} onValueChange={setDriverGender}>
-                    <SelectTrigger className="border-2 border-border focus:border-primary focus:ring-primary transition-colors bg-input-background hover:border-black">
+                    <SelectTrigger className="border-2 border-border focus:border-[#1e3a8a] focus:ring-[#1e3a8a] transition-colors bg-input-background hover:border-black">
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent>
@@ -430,7 +426,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                       value={driverContact}
                       onChange={(e) => setDriverContact(e.target.value)}
                       required
-                      className="border-2 border-border focus:border-primary focus:ring-primary pl-10 transition-colors bg-input-background selection:text-white hover:border-black"
+                      className="border-2 border-border focus:border-[#1e3a8a] focus:ring-[#1e3a8a] pl-10 transition-colors bg-input-background selection:text-white hover:border-black"
                     />
                   </div>
                 </div>
@@ -442,7 +438,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
           <Card className="mt-8 shadow-lg bg-gray-100 border border-black">
             <CardHeader className="text-center">
               <div className="flex items-center justify-center gap-3 mb-2">
-                <div className="p-2 rounded-lg bg-success">
+                <div className="p-2 rounded-lg bg-green-500">
                   <CheckCircle className="w-5 h-5 text-success-foreground" />
                 </div>
                 <CardTitle className="text-card-foreground">
@@ -459,7 +455,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Summary */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
-                  <div className="bg-primary/10 border-l-4 border-primary p-4 rounded-r-lg bg-blue-100">
+                  <div className="bg-primary/10 border-l-4 border-[#1e3a8a] p-4 rounded-r-lg bg-blue-100">
                     <h4 className="font-medium mb-2 text-primary">
                       Bus Details
                     </h4>
@@ -469,8 +465,8 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                     </p>
                   </div>
 
-                  <div className="bg-accent/10 border-l-4 border-accent p-4 rounded-r-lg bg-amber-100">
-                    <h4 className="font-medium mb-2 text-accent">
+                  <div className="bg-accent/10 border-l-4 border-amber-500 p-4 rounded-r-lg bg-amber-200">
+                    <h4 className="font-medium mb-2 text-amber-500">
                       Driver Details
                     </h4>
                     <p className="text-sm text-foreground">
@@ -484,7 +480,7 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                 <div className="flex justify-center">
                   <Button
                     type="submit"
-                    className="px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground transform transition-transform duration-300 
+                    className="px-8 py-3 bg-[#1e3a8a] hover:bg-primary/90 text-primary-foreground transform transition-transform duration-300 
                     hover:scale-110"
                     disabled={loading}
                   >
@@ -507,3 +503,5 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
     </div>
   );
 }
+
+

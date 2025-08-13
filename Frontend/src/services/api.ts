@@ -48,7 +48,7 @@ const api = {
 
   getDriverById: async (driverId: string): Promise<Driver> => {
     const response = await fetch(`${API_BASE_URL}/drivers/${driverId}`, {
-        headers: { 'Authorization': `Bearer ${getToken()}` },
+      headers: { 'Authorization': `Bearer ${getToken()}` },
     });
     return handleResponse(response);
   },
@@ -56,7 +56,7 @@ const api = {
   // Bus endpoints
   getBuses: async (): Promise<Bus[]> => {
     const response = await fetch(`${API_BASE_URL}/buses/list`, {
-        headers: { 'Authorization': `Bearer ${getToken()}` },
+      headers: { 'Authorization': `Bearer ${getToken()}` },
     });
     return handleResponse(response);
   },
@@ -105,6 +105,19 @@ const api = {
     const response = await fetch(`${API_BASE_URL}/students/send-credentials/${studentId}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${getToken()}` },
+    });
+    return handleResponse(response);
+  },
+
+  // ADD THE FOLLOWING METHOD:
+  sendBulkCredentials: async (studentIds: string[]): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/students/send-bulk-credentials`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({ studentIds }),
     });
     return handleResponse(response);
   },

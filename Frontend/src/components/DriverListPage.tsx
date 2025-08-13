@@ -76,9 +76,13 @@ export function DriverListPage({
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <Button onClick={onBack} variant="outline" className="flex items-center gap-2 border-2 border-secondary text-secondary hover:bg-secondary hover:text-white">
-                <ArrowLeft className="w-4 h-4" />
-                Back
+              <Button
+                  onClick={onBack}
+                  variant="outline"
+                  className="flex items-center gap-2 border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Allocation
               </Button>
               <div className="flex items-center gap-4">
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary">

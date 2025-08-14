@@ -6,6 +6,43 @@ import crypto from 'crypto';
 import { sendPasswordResetEmail } from '../services/emailService.js';
 
 // ================================================================
+// User registration (for creating admin users)
+// ================================================================
+export const register = async (req, res) => {
+    try {
+        const { email, password, role = 'admin' } = req.body;
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ message: 'User with this email already exists' });
+        }
+
+        // Create new user
+        const user = new User({
+            email,
+            password,
+            role
+        });
+
+        await user.save();
+
+        // Create JWT token
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.status(201).json({ 
+            message: 'User registered successfully!', 
+            token, 
+            userId: user._id 
+        });
+
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// ================================================================
 // User login
 // ================================================================
 export const login = async (req, res) => {
@@ -25,7 +62,7 @@ export const login = async (req, res) => {
         }
 
         // Create a JWT token with the user ID
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         // Send the user ID and token in the response
         res.status(200).json({ 
@@ -57,8 +94,8 @@ export const forgotPassword = async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
         await user.save();
 
-        // FIX: Call the correctly named function.
-        const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+        // Create the reset URL that will redirect to the frontend
+        const resetUrl = `http://localhost:5173/new-password?token=${resetToken}`;
         await sendPasswordResetEmail(user.email, resetUrl);
 
         res.status(200).json({ message: 'Password reset link sent to your email.' });
@@ -73,8 +110,11 @@ export const forgotPassword = async (req, res) => {
 // ================================================================
 export const resetPassword = async (req, res) => {
     try {
-        const { token } = req.params;
-        const { newPassword } = req.body;
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({ message: 'Token and new password are required.' });
+        }
 
         const user = await User.findOne({
             resetPasswordToken: token,

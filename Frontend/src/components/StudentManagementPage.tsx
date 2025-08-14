@@ -37,6 +37,7 @@ export function StudentManagementPage({
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedBusId, setSelectedBusId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const [loadingBuses, setLoadingBuses] = useState(true);
   const [loadingStudents, setLoadingStudents] = useState(false);
@@ -47,6 +48,17 @@ export function StudentManagementPage({
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
+
+  // Error boundary effect
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error('Global error caught:', event.error);
+      setError('An unexpected error occurred. Please refresh the page.');
+    };
+
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
 
   const fetchBuses = useCallback(async () => {
     setLoadingBuses(true);
@@ -70,10 +82,28 @@ export function StudentManagementPage({
     setLoadingStudents(true);
     try {
       const fetchedStudents = await api.getStudentsForBus(busId);
-      setStudents(fetchedStudents);
+      
+      // Validate and normalize the fetched students
+      const validatedStudents = fetchedStudents.map(student => {
+        // Ensure the student has a valid ID field (PRN)
+        const studentId = student._id || student.prn || student.id;
+        if (student && studentId) {
+          return { 
+            ...student, 
+            id: studentId,
+            prn: studentId
+          } as Student;
+        }
+        return student;
+      }).filter((student): student is Student => 
+        Boolean(student && (student.id || student._id || student.prn))
+      ); // Filter out invalid students
+      
+      setStudents(validatedStudents);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Failed to fetch students.";
       toast.error(errorMessage);
+      console.error('Error fetching students:', error);
       setStudents([]);
     } finally {
       setLoadingStudents(false);
@@ -112,13 +142,33 @@ export function StudentManagementPage({
   };
 
   const handleDeleteStudentClick = (student: Student) => {
-    // Validate student object before proceeding
-    if (!student || !student.id) {
+    // Enhanced validation to handle PRN as ID
+    if (!student) {
+      toast.error('No student data provided.');
+      return;
+    }
+    
+    // PRN is now the primary ID
+    const studentId = student.id || student._id || student.prn;
+    
+    if (!studentId || typeof studentId !== 'string' || studentId.trim() === '') {
+      console.error('Student object:', student);
+      console.error('Student ID:', studentId);
       toast.error('Invalid student data. Cannot delete student.');
       return;
     }
+    
     console.log('Student object to delete:', student);
-    setStudentToDelete(student);
+    console.log('Student ID (PRN) to delete:', studentId);
+    
+    // Create a normalized student object with the correct ID
+    const normalizedStudent = {
+      ...student,
+      id: studentId,
+      prn: studentId
+    };
+    
+    setStudentToDelete(normalizedStudent);
     setIsDeleteModalOpen(true);
   };
 
@@ -128,27 +178,51 @@ export function StudentManagementPage({
         return;
     }
 
-    // Check if we are in edit mode and if the student ID is valid
-    if (editingStudent && !editingStudent.id) {
-        toast.error('Cannot update student: ID is missing.');
+    // Check if we are in edit mode and if the student ID (PRN) is valid
+    if (editingStudent && !editingStudent.id && !editingStudent._id && !editingStudent.prn) {
+        toast.error('Cannot update student: PRN is missing.');
         setIsFormModalOpen(false);
         setEditingStudent(null);
         return;
     }
 
-    const actionId = editingStudent ? editingStudent.id : 'new-student';
-    setStudentActionId(actionId);
+    const actionId = editingStudent ? (editingStudent.id || editingStudent._id || editingStudent.prn || '') : 'new-student';
+    setStudentActionId(actionId || 'new-student');
 
     try {
         if (editingStudent) {
-            // Ensure editingStudent.id is not undefined before passing it
-            const updated = await api.updateStudent(editingStudent.id!, { ...studentData, busId: selectedBusId });
-            setStudents(prev => prev.map(s => s.id === updated.id ? updated : s));
+            // Ensure editingStudent has a valid PRN before passing it
+            const studentId = editingStudent.id || editingStudent._id || editingStudent.prn;
+            if (!studentId) {
+                toast.error('Cannot update student: PRN is missing.');
+                return;
+            }
+            
+            const updated = await api.updateStudent(studentId, { ...studentData, busId: selectedBusId });
+            setStudents(prev => prev.map(s => {
+              const sId = s.id || s._id || s.prn;
+              const updatedId = updated.id || updated._id || updated.prn;
+              return sId === updatedId ? updated : s;
+            }));
             toast.success("Student updated successfully!");
         } else {
+            console.log('Adding new student with data:', { ...studentData, busId: selectedBusId });
             const newStudent = await api.addStudent({ ...studentData, busId: selectedBusId });
-            setStudents(prev => [...prev, newStudent]);
-            toast.success("Student added successfully!");
+            console.log('Received new student from API:', newStudent);
+            
+            // Ensure the new student has a valid PRN before adding to the list
+            if (newStudent && (newStudent.id || newStudent._id || newStudent.prn)) {
+                console.log('Student validation passed, adding to list:', newStudent);
+                setStudents(prev => [...prev, newStudent]);
+                toast.success("Student added successfully!");
+            } else {
+                console.error('Student validation failed. New student object:', newStudent);
+                console.error('Student id:', newStudent?.id);
+                console.error('Student _id:', newStudent?._id);
+                console.error('Student prn:', newStudent?.prn);
+                toast.error('Failed to add student: Invalid student data received.');
+                return;
+            }
         }
         setIsFormModalOpen(false);
         setEditingStudent(null);
@@ -156,6 +230,7 @@ export function StudentManagementPage({
         const action = editingStudent ? 'update' : 'add';
         const errorMessage = error instanceof Error ? error.message : `Failed to ${action} student.`;
         toast.error(errorMessage);
+        console.error(`${action} student error:`, error);
     } finally {
         setStudentActionId(null);
     }
@@ -169,24 +244,36 @@ export function StudentManagementPage({
       return;
     }
 
-    if (!studentToDelete.id || typeof studentToDelete.id !== 'string' || studentToDelete.id.trim() === '') {
-      toast.error('Invalid student ID. Cannot delete student.');
+    // PRN is now the primary ID
+    const studentId = studentToDelete.id || studentToDelete._id || studentToDelete.prn;
+    
+    if (!studentId || typeof studentId !== 'string' || studentId.trim() === '') {
+      console.error('Student to delete:', studentToDelete);
+      console.error('Student ID (PRN):', studentId);
+      toast.error('Invalid student PRN. Cannot delete student.');
       setIsDeleteModalOpen(false);
       setStudentToDelete(null);
       return;
     }
 
     // Store the student ID in a local variable to prevent race conditions
-    const studentIdToDelete = studentToDelete.id;
+    const studentIdToDelete = studentId;
     const studentNameToDelete = studentToDelete.name;
     
     setStudentActionId(studentIdToDelete);
     
     try {
+      console.log('Attempting to delete student with PRN:', studentIdToDelete);
+      console.log('Student object being deleted:', studentToDelete);
+      console.log('Student ID type:', typeof studentIdToDelete);
+      console.log('Student ID length:', studentIdToDelete ? studentIdToDelete.length : 'undefined');
       await api.deleteStudent(studentIdToDelete);
       
       // Update the students list
-      setStudents(prev => prev.filter(s => s.id !== studentIdToDelete));
+      setStudents(prev => prev.filter(s => {
+        const sId = s.id || s._id || s.prn;
+        return sId !== studentIdToDelete;
+      }));
       
       toast.success(`Student "${studentNameToDelete}" deleted successfully!`);
       
@@ -207,7 +294,10 @@ export function StudentManagementPage({
     setStudentActionId(studentId);
     try {
       await api.sendCredentials(studentId);
-      setStudents(prev => prev.map(s => s.id === studentId ? { ...s, credentialsGenerated: true } : s));
+      setStudents(prev => prev.map(s => {
+        const sId = s.id || s._id || s.prn;
+        return sId === studentId ? { ...s, credentialsGenerated: true } : s;
+      }));
       toast.success('Credentials sent successfully!');
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to send credentials.';
@@ -218,16 +308,31 @@ export function StudentManagementPage({
   };
   
   const handleSendAllInvitations = async () => {
-    const studentsWithoutCredentials = students.filter(s => s.busId === selectedBusId && !s.credentialsGenerated);
-    if (studentsWithoutCredentials.length === 0) {
-      toast.error('No students without credentials found for this bus');
+    if (!selectedBusId) {
+      toast.error('No bus selected');
       return;
     }
+    
+    if (studentsWithoutInvitations.length === 0) {
+      toast.error('No students without invitations found for this bus');
+      return;
+    }
+    
     try {
-      await api.sendBulkCredentials(studentsWithoutCredentials.map(s => s.id));
-      setStudents(prev => prev.map(s => s.credentialsGenerated || (studentsWithoutCredentials.some(swc => swc.id === s.id)) ? { ...s, credentialsGenerated: true } : s));
-      toast.success('Sending all the invitations', {
-        description: `Email invitations sent to ${studentsWithoutCredentials.length} students with login credentials`
+      await api.sendInvitations(selectedBusId);
+      
+      // Update the students list to mark invitations as sent
+      setStudents(prev => prev.map(s => {
+        const sId = s.id || s._id || s.prn;
+        const hasInvitation = s.invitationSent || studentsWithoutInvitations.some(swi => {
+          const swiId = swi.id || swi._id || swi.prn;
+          return swiId === sId;
+        });
+        return hasInvitation ? { ...s, invitationSent: true } : s;
+      }));
+      
+      toast.success('Invitations sent successfully!', {
+        description: `Email invitations sent to ${studentsWithoutInvitations.length} students for the BusTracker app`
       });
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to send invitations.';
@@ -236,19 +341,87 @@ export function StudentManagementPage({
   };
 
   const filteredStudents = useMemo(() => {
-    const trimmedSearch = searchTerm.trim().toLowerCase();
-    if (!trimmedSearch) return students;
-    
-    return students.filter(student => 
-      student.name.toLowerCase().includes(trimmedSearch) ||
-      student.prn.toLowerCase().includes(trimmedSearch)
-    );
+    try {
+      const trimmedSearch = searchTerm.trim().toLowerCase();
+      if (!trimmedSearch) return students;
+      
+      return students.filter(student => 
+        student && student.name && (student.id || student._id || student.prn) && 
+        (student.name.toLowerCase().includes(trimmedSearch) ||
+         (student.id || student._id || student.prn)?.toLowerCase().includes(trimmedSearch))
+      );
+    } catch (error) {
+      console.error('Error filtering students:', error);
+      return [];
+    }
   }, [students, searchTerm]);
 
-  const selectedBus = useMemo(() => buses.find(b => b.id === selectedBusId), [buses, selectedBusId]);
+  const selectedBus = useMemo(() => {
+    try {
+      return buses.find(b => b.id === selectedBusId);
+    } catch (error) {
+      console.error('Error finding selected bus:', error);
+      return null;
+    }
+  }, [buses, selectedBusId]);
 
   const isSearchMode = searchTerm.length > 0;
-  const studentsWithoutCredentials = selectedBus ? students.filter(s => s.busId === selectedBus.id && !s.credentialsGenerated) : [];
+  const studentsWithoutInvitations = useMemo(() => {
+    try {
+      return selectedBus ? students.filter(s => s && s.busId === selectedBus.id && !s.invitationSent) : [];
+    } catch (error) {
+      console.error('Error filtering students without invitations:', error);
+      return [];
+    }
+  }, [selectedBus, students]);
+
+  // Show error message if there's an error
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Banner />
+        <div className="flex-1 p-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <Button
+                onClick={onBack}
+                variant="outline"
+                className="flex items-center gap-2 border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Allocation
+              </Button>
+              <Button onClick={onLogout} variant="outline" className="flex items-center gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                <LogOut className="w-4 h-4" />
+                Logout
+              </Button>
+            </div>
+            <Card className="shadow-card border-0 text-center py-12">
+              <CardContent>
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                    <AlertCircle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium mb-2 text-foreground">
+                      Something went wrong
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {error}
+                    </p>
+                    <Button onClick={() => window.location.reload()} variant="outline">
+                      Refresh Page
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (loadingBuses) {
     return <PageLoader />;
@@ -367,7 +540,7 @@ export function StudentManagementPage({
                   bus={bus} 
                   isSelected={selectedBusId === bus.id} 
                   onSelect={handleBusSelection} 
-                  studentCount={students.filter(s => s.busId === bus.id).length} 
+                  studentCount={students.filter(s => s && s.busId === bus.id).length} 
                 />
               ))}
             </div>
@@ -416,12 +589,12 @@ export function StudentManagementPage({
                   <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ paddingBottom: '500px' }}>
                     {filteredStudents.map(student => (
                       <StudentCard
-                        key={student.id}
+                        key={student.id || student._id || student.prn}
                         student={student}
                         onEdit={() => handleEditStudentClick(student)}
                         onDelete={() => handleDeleteStudentClick(student)}
                         onSendCredentials={handleSendCredentials}
-                        isActionLoading={studentActionId === student.id}
+                        isActionLoading={studentActionId === (student.id || student._id || student.prn)}
                       />
                     ))}
                   </div>
@@ -467,12 +640,12 @@ export function StudentManagementPage({
                   <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ paddingBottom: '500px' }}>
                     {students.map(student => (
                       <StudentCard
-                        key={student.id}
+                        key={student.id || student._id || student.prn}
                         student={student}
                         onEdit={() => handleEditStudentClick(student)}
                         onDelete={() => handleDeleteStudentClick(student)}
                         onSendCredentials={handleSendCredentials}
-                        isActionLoading={studentActionId === student.id}
+                        isActionLoading={studentActionId === (student.id || student._id || student.prn)}
                       />
                     ))}
                   </div>
@@ -503,7 +676,7 @@ export function StudentManagementPage({
         }}
         onSubmit={handleFormSubmit}
         student={editingStudent}
-        isLoading={studentActionId === (editingStudent?.id || 'new-student')}
+        isLoading={studentActionId === (editingStudent?.id || editingStudent?._id || editingStudent?.prn || 'new-student')}
         busId={selectedBusId || ''}
         busNumber={selectedBus?.busNumber || ''}
       />
@@ -514,16 +687,16 @@ export function StudentManagementPage({
         onConfirm={handleConfirmDelete}
         title="Delete Student"
         description={`Are you sure you want to delete ${studentToDelete?.name}? This action cannot be undone.`}
-        loading={studentActionId === studentToDelete?.id}
+        loading={studentActionId === (studentToDelete?.id || studentToDelete?._id || studentToDelete?.prn)}
       />
 
-      {selectedBus && students.length > 0 && studentsWithoutCredentials.length > 0 && !isSearchMode && (
+      {selectedBus && students.length > 0 && studentsWithoutInvitations.length > 0 && !isSearchMode && (
         <div className="fixed bottom-20 right-8 z-50">
           <Button
             onClick={handleSendAllInvitations}
           >
             <Send className="w-4 h-4" />
-            Send Invitations ({studentsWithoutCredentials.length})
+            Send Invitations ({studentsWithoutInvitations.length})
           </Button>
         </div>
       )}

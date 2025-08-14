@@ -1,5 +1,5 @@
 import express from 'express';
-import { addStudent, updateStudent, deleteStudent, getStudents, sendCredentials } from '../controllers/studentController.js';
+import { addStudent, updateStudent, deleteStudent, getStudents, sendStudentCredentials, sendBulkCredentials, sendInvitations } from '../controllers/studentController.js';
 import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -24,6 +24,14 @@ router.get('/list', verifyToken, getStudents);
 
 // POST /api/students/send-credentials/:id
 // Route to generate and send login credentials to a student.
-router.post('/send-credentials/:id', verifyToken, sendCredentials);
+router.post('/send-credentials/:id', verifyToken, sendStudentCredentials);
+
+// POST /api/students/send-bulk-credentials
+// Route to generate and send login credentials to multiple students.
+router.post('/send-bulk-credentials', verifyToken, sendBulkCredentials);
+
+// POST /api/students/send-invitations
+// Route to send invitations to students for the future app.
+router.post('/send-invitations', verifyToken, sendInvitations);
 
 export default router;

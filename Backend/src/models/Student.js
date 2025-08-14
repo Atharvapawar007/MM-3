@@ -2,15 +2,15 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const StudentSchema = new Schema({
+    _id: {
+        type: String, // PRN will be used as the _id
+        required: true,
+        unique: true,
+        trim: true,
+    },
     name: {
         type: String,
         required: true,
-        trim: true,
-    },
-    prn: {
-        type: String,
-        required: true,
-        unique: true, // Ensures no two students have the same PRN
         trim: true,
     },
     gender: {
@@ -38,6 +38,10 @@ const StudentSchema = new Schema({
         trim: true,
     },
     credentialsGenerated: {
+        type: Boolean,
+        default: false,
+    },
+    invitationSent: {
         type: Boolean,
         default: false,
     },

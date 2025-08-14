@@ -19,6 +19,12 @@ const UserSchema = new Schema({
         enum: ['admin', 'sub-admin'], // Define roles for your admin users
         default: 'admin',
     },
+    resetPasswordToken: {
+        type: String,
+    },
+    resetPasswordExpires: {
+        type: Date,
+    },
 }, {
     timestamps: true,
 });

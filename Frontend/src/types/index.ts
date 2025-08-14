@@ -26,16 +26,17 @@ export interface Driver {
 }
 
 export interface Student {
-  id: string;
-  _id?: string;
+  id: string; // This is now the PRN
+  _id?: string; // MongoDB fallback (same as PRN)
   name: string;
-  prn: string;
+  prn?: string; // Keep for backward compatibility, but it's the same as id
   gender: string;
   email: string;
   busId: string;
   username?: string;
   password?: string;
   credentialsGenerated: boolean;
+  invitationSent: boolean;
   createdAt: string;
   updatedAt?: string;
 }

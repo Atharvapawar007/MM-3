@@ -105,3 +105,82 @@ export const sendCredentials = async (email, username, password) => {
         return { success: false, error };
     }
 };
+
+// ================================================================
+// Sends invitation email to students for the future app.
+// @param {string} email - The student's email address.
+// @param {string} prn - The student's PRN (Personal Registration Number).
+// @returns {Promise<object>} An object containing the success status.
+// ================================================================
+export const sendInvitationEmail = async (email, prn) => {
+    const mailOptions = {
+        from: process.env.EMAIL_FROM,
+        to: email,
+        subject: 'BusTracker Student App - Invitation to Join',
+        html: `
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto;">
+                <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: 600;">BusTracker Student App</h1>
+                    <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">You're invited to join our student portal!</p>
+                </div>
+                
+                <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+                    <h2 style="color: #1e3a8a; margin-top: 0; font-size: 24px;">Welcome to BusTracker!</h2>
+                    
+                    <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+                        Dear Student,
+                    </p>
+                    
+                    <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+                        We are excited to inform you that you have been registered for the <strong>BusTracker Student App</strong>, 
+                        which will be launching soon. This app will allow you to track your bus location, receive real-time updates, 
+                        and stay connected with your transportation schedule.
+                    </p>
+                    
+                    <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                        <h3 style="color: #1e3a8a; margin-top: 0; font-size: 18px;">Your Login Credentials</h3>
+                        <p style="margin: 10px 0; font-size: 16px;">
+                            <strong>Username:</strong> <span style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${email}</span>
+                        </p>
+                        <p style="margin: 10px 0; font-size: 16px;">
+                            <strong>Password:</strong> <span style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${prn}</span>
+                        </p>
+                    </div>
+                    
+                    <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+                        <strong>Important Notes:</strong>
+                    </p>
+                    <ul style="font-size: 16px; line-height: 1.6; color: #374151; padding-left: 20px;">
+                        <li>Please keep these credentials safe and do not share them with others</li>
+                        <li>The app will be available for download in the coming weeks</li>
+                        <li>You will receive a notification when the app is ready for use</li>
+                        <li>For security reasons, please change your password after your first login</li>
+                    </ul>
+                    
+                    <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+                        If you have any questions or need assistance, please don't hesitate to contact the administration office.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div style="background: #1e3a8a; color: white; padding: 15px 30px; border-radius: 8px; display: inline-block; font-weight: 600;">
+                            🚌 BusTracker Student Portal
+                        </div>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #6b7280; text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                        This is an automated message. Please do not reply to this email.
+                    </p>
+                </div>
+            </div>
+        `,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Invitation email sent to ${email}`);
+        return { success: true };
+    } catch (error) {
+        console.error(`Failed to send invitation email to ${email}:`, error);
+        return { success: false, error };
+    }
+};

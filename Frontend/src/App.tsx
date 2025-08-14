@@ -86,6 +86,19 @@ export default function App() {
     }
   };
 
+  // Check for password reset token in URL on initial load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const pathname = window.location.pathname;
+    
+    if (token && (pathname === '/new-password' || pathname.includes('new-password'))) {
+      setCurrentPage('newPassword');
+    } else if (pathname === '/forgot-password') {
+      setCurrentPage('forgotPassword');
+    }
+  }, []);
+
   // Fetch data on initial load and when the user logs in
   useEffect(() => {
     if (currentPage !== 'login' && currentPage !== 'forgotPassword' && currentPage !== 'newPassword') {
@@ -113,11 +126,7 @@ export default function App() {
     setCurrentPage('login');
   };
 
-  const handleOtpSent = () => {
-    setCurrentPage('newPassword');
-  };
-
-  const handlePasswordResetSuccess = () => {
+  const handleBackToLoginFromNewPassword = () => {
     setCurrentPage('login');
   };
 
@@ -172,9 +181,9 @@ export default function App() {
       case 'login':
         return <LoginPage onLogin={handleLogin} onForgotPassword={handleForgotPassword} />;
       case 'forgotPassword':
-        return <ForgotPasswordPage onOtpSent={handleOtpSent} onBackToLogin={handleBackToLoginFromForgot} />;
+        return <ForgotPasswordPage onBackToLogin={handleBackToLoginFromForgot} />;
       case 'newPassword':
-        return <NewPasswordPage onPasswordReset={handlePasswordResetSuccess} />;
+        return <NewPasswordPage onBackToLogin={handleBackToLoginFromNewPassword} />;
       case 'allocation':
         return (
           <DriverAllocationPage 

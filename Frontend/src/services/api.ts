@@ -78,7 +78,12 @@ const api = {
       },
       body: JSON.stringify(studentData),
     });
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    console.log('API response data:', data);
+    // Extract the student from the response
+    const student = data.student || data;
+    console.log('Extracted student:', student);
+    return student;
   },
 
   updateStudent: async (studentId: string, studentData: Partial<Student>): Promise<Student> => {
@@ -90,7 +95,9 @@ const api = {
       },
       body: JSON.stringify(studentData),
     });
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    // Extract the student from the response
+    return data.student || data;
   },
 
   deleteStudent: async (studentId: string): Promise<void> => {
@@ -118,6 +125,19 @@ const api = {
         'Authorization': `Bearer ${getToken()}`,
       },
       body: JSON.stringify({ studentIds }),
+    });
+    return handleResponse(response);
+  },
+
+  // Send invitations to students for the future app
+  sendInvitations: async (busId: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/students/send-invitations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({ busId }),
     });
     return handleResponse(response);
   },

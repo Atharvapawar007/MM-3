@@ -11,7 +11,8 @@ import {
   X,
   AlertCircle,
   Bus as BusIcon, // Renaming Bus to BusIcon to avoid conflict with Bus type
-  Send
+  Send,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Banner } from "./Banner";
@@ -42,6 +43,7 @@ export function StudentManagementPage({
   const [loadingBuses, setLoadingBuses] = useState(true);
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [studentActionId, setStudentActionId] = useState<string | null>(null);
+  const [sendingInvitations, setSendingInvitations] = useState(false);
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
@@ -318,6 +320,7 @@ export function StudentManagementPage({
       return;
     }
     
+    setSendingInvitations(true);
     try {
       await api.sendInvitations(selectedBusId);
       
@@ -337,6 +340,8 @@ export function StudentManagementPage({
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to send invitations.';
       toast.error(errorMessage);
+    } finally {
+      setSendingInvitations(false);
     }
   };
 
@@ -694,9 +699,20 @@ export function StudentManagementPage({
         <div className="fixed bottom-20 right-8 z-50">
           <Button
             onClick={handleSendAllInvitations}
+            disabled={sendingInvitations}
+            variant={sendingInvitations ? "secondary" : "default"}
           >
-            <Send className="w-4 h-4" />
-            Send Invitations ({studentsWithoutInvitations.length})
+            {sendingInvitations ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                Send Invitations ({studentsWithoutInvitations.length})
+              </>
+            )}
           </Button>
         </div>
       )}

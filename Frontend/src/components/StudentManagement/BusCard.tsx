@@ -49,9 +49,6 @@ export function BusCard({ bus, isSelected, onSelect, studentCount }: BusCardProp
               <p className="text-sm font-medium text-foreground">
                 {bus.driverName}
               </p>
-              <p className="text-xs text-muted-foreground">
-                Driver #{bus.driverId}
-              </p>
             </div>
           </div>
 

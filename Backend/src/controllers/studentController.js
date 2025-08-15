@@ -12,17 +12,30 @@ export const addStudent = async (req, res) => {
         const { name, prn, gender, email, busId } = req.body;
         const userId = req.user.id; // Extract userId from the authenticated user
 
+        console.log('Adding student with data:', { name, prn, gender, email, busId, userId });
+
         // Check for duplicate PRN or email
-        const existingStudent = await Student.findOne({ $or: [{ _id: prn }, { email }] });
-        if (existingStudent) {
-            return res.status(409).json({ message: 'A student with this PRN or email already exists' });
+        const existingStudentByPRN = await Student.findById(prn);
+        const existingStudentByEmail = await Student.findOne({ email });
+
+        if (existingStudentByPRN) {
+            console.log('Student with PRN already exists:', prn);
+            return res.status(409).json({ message: 'A student with this PRN already exists' });
+        }
+
+        if (existingStudentByEmail) {
+            console.log('Student with email already exists:', email);
+            return res.status(409).json({ message: 'A student with this email already exists' });
         }
 
         // Check if the bus exists
         const bus = await Driver.findById(busId);
         if (!bus) {
+            console.log('Bus not found:', busId);
             return res.status(404).json({ message: 'The specified bus does not exist' });
         }
+
+        console.log('Creating new student with PRN as _id:', prn);
 
         // Create a new student instance with PRN as _id
         const newStudent = new Student({
@@ -38,12 +51,13 @@ export const addStudent = async (req, res) => {
         });
 
         await newStudent.save();
+        console.log('Student saved successfully to database');
 
         // Return the student with id field set to PRN for frontend compatibility
         const studentResponse = {
             ...newStudent.toObject(),
             id: newStudent._id, // Set id to PRN for frontend
-            prn: newStudent._id, // Keep prn field for backward compatibility
+            // Remove the prn field since it's now the _id
             invitationSent: false // New students haven't received invitations yet
         };
 
@@ -53,6 +67,7 @@ export const addStudent = async (req, res) => {
 
     } catch (error) {
         console.error('Error adding student:', error);
+        console.error('Error stack:', error.stack);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -383,5 +398,40 @@ export const sendInvitations = async (req, res) => {
     } catch (error) {
         console.error('Error sending invitations:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// ================================================================
+// Clean up database indexes (run once to fix existing conflicts)
+// ================================================================
+export const cleanupIndexes = async (req, res) => {
+    try {
+        console.log('Cleaning up database indexes...');
+        
+        // Get the Student collection
+        const collection = mongoose.connection.collection('students');
+        
+        // List all indexes
+        const indexes = await collection.indexes();
+        console.log('Current indexes:', indexes);
+        
+        // Drop any conflicting indexes
+        for (const index of indexes) {
+            if (index.name === 'prn_1' || index.name === 'email_1') {
+                console.log(`Dropping conflicting index: ${index.name}`);
+                await collection.dropIndex(index.name);
+            }
+        }
+        
+        // Recreate the correct indexes
+        await collection.createIndex({ email: 1 }, { unique: true });
+        await collection.createIndex({ busId: 1 });
+        
+        console.log('Index cleanup completed successfully');
+        res.status(200).json({ message: 'Database indexes cleaned up successfully' });
+        
+    } catch (error) {
+        console.error('Error cleaning up indexes:', error);
+        res.status(500).json({ message: 'Failed to clean up indexes', error: error.message });
     }
 };

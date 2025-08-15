@@ -47,7 +47,7 @@ export const sendPasswordResetEmail = async (email, resetURL) => {
                 <h2 style="color: #1e3a8a;">Password Reset Request</h2>
                 <p>Hello,</p>
                 <p>We received a request to reset your password. Please click the button below to set a new one:</p>
-                <div style="text-align: center; margin: 30px 0;">
+                <div style="text-align: left; margin: 30px 0;">
                     <a href="${resetURL}" style="background-color: #1e3a8a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
                         Reset Your Password
                     </a>

@@ -108,6 +108,16 @@ export function DriverListPage({
 
           {loading ? (
             <PageLoader />
+          ) : drivers.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <User className="w-8 h-8 text-gray-500" />
+              </div>
+              <h3 className="font-medium mb-2 text-gray-900">No Drivers have been Allocated</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                First allocate drivers to their respective buses on the previous page
+              </p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {drivers.map((driver, index) => (

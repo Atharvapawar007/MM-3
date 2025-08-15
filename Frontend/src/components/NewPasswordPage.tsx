@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Eye, EyeOff, Lock, Shield, CheckCircle, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Lock, Shield, CheckCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface NewPasswordPageProps {
@@ -23,9 +23,13 @@ export function NewPasswordPage({ onBackToLogin }: NewPasswordPageProps) {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const tokenFromUrl = urlParams.get('token');
+    console.log('NewPasswordPage: URL params:', window.location.search);
+    console.log('NewPasswordPage: Extracted token:', tokenFromUrl ? 'PRESENT' : 'MISSING');
+    
     if (tokenFromUrl) {
       setToken(tokenFromUrl);
     } else {
+      console.error('NewPasswordPage: No token found in URL');
       toast.error('Invalid or missing reset token. Please request a new password reset link.');
       onBackToLogin();
     }
@@ -54,6 +58,8 @@ export function NewPasswordPage({ onBackToLogin }: NewPasswordPageProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('NewPasswordPage: Submitting password reset with token:', token ? 'PRESENT' : 'MISSING');
+    
     if (!token) {
       toast.error('Invalid reset token. Please request a new password reset link.');
       return;
@@ -72,6 +78,7 @@ export function NewPasswordPage({ onBackToLogin }: NewPasswordPageProps) {
     setLoading(true);
 
     try {
+      console.log('NewPasswordPage: Making API call to reset password');
       const response = await fetch('http://localhost:3000/api/auth/reset-password', {
         method: 'POST',
         headers: {
@@ -84,6 +91,7 @@ export function NewPasswordPage({ onBackToLogin }: NewPasswordPageProps) {
       });
 
       const data = await response.json();
+      console.log('NewPasswordPage: API response:', { status: response.status, data });
 
       if (response.ok) {
         setSuccess(true);
@@ -92,7 +100,7 @@ export function NewPasswordPage({ onBackToLogin }: NewPasswordPageProps) {
         toast.error(data.message || 'Failed to reset password. Please try again.');
       }
     } catch (error) {
-      console.error('Password reset request failed:', error);
+      console.error('NewPasswordPage: Password reset request failed:', error);
       toast.error('Network error. Please check your connection.');
     } finally {
       setLoading(false);
@@ -197,6 +205,18 @@ export function NewPasswordPage({ onBackToLogin }: NewPasswordPageProps) {
       
       {/* Content Container */}
       <div className="relative z-10 w-full max-w-md">
+        {/* Back to Login Button */}
+        <div className="mb-6">
+          <Button
+            onClick={onBackToLogin}
+            variant="outline"
+            className="flex items-center gap-2 border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Login
+          </Button>
+        </div>
+
         {/* Header with branding */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 bg-primary">

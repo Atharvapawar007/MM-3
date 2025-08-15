@@ -32,10 +32,12 @@ const StudentSchema = new Schema({
     username: {
         type: String,
         trim: true,
+        sparse: true, // Allows multiple documents to not have this field
     },
     password: {
         type: String,
         trim: true,
+        select: false, // Don't include password in queries by default
     },
     credentialsGenerated: {
         type: Boolean,
@@ -47,6 +49,25 @@ const StudentSchema = new Schema({
     },
 }, {
     timestamps: true, // Adds createdAt and updatedAt timestamps
+});
+
+// Add indexes for better query performance
+StudentSchema.index({ busId: 1 });
+StudentSchema.index({ email: 1 });
+
+// Transform the document when converting to JSON/Object
+StudentSchema.set('toJSON', {
+    transform: function(doc, ret) {
+        ret.id = ret._id; // Ensure id field is always present
+        return ret;
+    }
+});
+
+StudentSchema.set('toObject', {
+    transform: function(doc, ret) {
+        ret.id = ret._id; // Ensure id field is always present
+        return ret;
+    }
 });
 
 const Student = mongoose.model('Student', StudentSchema);

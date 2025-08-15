@@ -294,10 +294,10 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
                   />
                 </div>
 
-                <div className="bg-secondary/10 border-l-4 border-secondary p-4 rounded-r-lg bg-blue-100">
+                <div className="bg-amber-500/10 border-l-4 border-amber-500 p-4 rounded-r-lg">
                   <div className="flex items-center gap-2">
-                    <Bus className="w-4 h-4 text-secondary" />
-                    <span className="font-medium text-secondary-foreground">
+                    <Bus className="w-4 h-4 text-black" />
+                    <span className="font-medium text-black">
                       Bus Identification
                     </span>
                   </div>

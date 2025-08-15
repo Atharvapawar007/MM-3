@@ -1,28 +1,28 @@
 import { Card, CardContent } from '../ui/card';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Button } from '../ui/button';
-import { User, Edit, Trash2, KeyRound, Loader2, CheckCircle } from 'lucide-react';
+import { Edit, Trash2, KeyRound, Loader2, CheckCircle } from 'lucide-react';
 import type { Student } from '../../types';
 
 interface StudentCardProps {
   student: Student;
   onEdit: () => void;
   onDelete: () => void;
-  onSendCredentials: (studentId: string) => void;
+  onSendCredentials: (studentPrn: string) => void;
   isActionLoading: boolean;
 }
 
-export function StudentCard({ 
-  student, 
-  onEdit, 
-  onDelete, 
-  onSendCredentials, 
-  isActionLoading 
+export function StudentCard({
+  student,
+  onEdit,
+  onDelete,
+  onSendCredentials,
+  isActionLoading
 }: StudentCardProps) {
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
-  
+
   return (
     <Card className="border shadow-card hover:shadow-elevated transition-all duration-200">
       <CardContent className="p-4">
@@ -53,14 +53,14 @@ export function StudentCard({
 
         <div className="flex gap-2">
           <Button
-            variant="outline"
-            size="sm"
-            onClick={onEdit}
-            className="flex-1 border-gray-300 text-slate-700 hover:bg-gray-200"
-          >
-            <Edit className="w-3 h-3 mr-1" />
-            Edit
-          </Button>
+            variant="outline"
+            size="sm"
+            onClick={onEdit}
+            className="flex-1 border-gray-300 text-slate-700 hover:bg-gray-200"
+          >
+            <Edit className="w-3 h-3 mr-1" />
+            Edit
+          </Button>
 
           <Button
             variant="outline"
@@ -75,7 +75,7 @@ export function StudentCard({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onSendCredentials(student.id)}
+            onClick={() => onSendCredentials(student.prn)}
             disabled={student.credentialsGenerated || isActionLoading}
             className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
           >

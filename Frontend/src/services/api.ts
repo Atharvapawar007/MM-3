@@ -1,11 +1,21 @@
 import { API_BASE_URL } from '../config';
 import type { Driver, Student, Bus } from '../types';
 
-const getToken = () => localStorage.getItem('token');
+const getToken = () => {
+  const token = localStorage.getItem('token');
+  console.log('API: getToken called, token:', token ? 'PRESENT' : 'MISSING');
+  return token;
+};
 
 const handleResponse = async (response: Response) => {
+  console.log('API: Response status:', response.status);
+  console.log('API: Response headers:', Object.fromEntries(response.headers.entries()));
+  
   const data = await response.json();
+  console.log('API: Response data:', data);
+  
   if (!response.ok) {
+    console.error('API: Error response:', data);
     throw new Error(data.message || 'An error occurred');
   }
   return data;
@@ -70,19 +80,26 @@ const api = {
   },
 
   addStudent: async (studentData: Omit<Student, 'id' | 'credentialsGenerated' | 'createdAt'>): Promise<Student> => {
+    const token = getToken();
+    console.log('API: addStudent called with token:', token ? 'PRESENT' : 'MISSING');
+    console.log('API: addStudent data:', studentData);
+    
     const response = await fetch(`${API_BASE_URL}/students/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`,
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(studentData),
     });
+    
+    console.log('API: addStudent response status:', response.status);
     const data = await handleResponse(response);
-    console.log('API response data:', data);
+    console.log('API: addStudent response data:', data);
+    
     // Extract the student from the response
     const student = data.student || data;
-    console.log('Extracted student:', student);
+    console.log('API: Extracted student:', student);
     return student;
   },
 

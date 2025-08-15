@@ -49,17 +49,27 @@ export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        console.log('Login attempt for email:', email);
+
         // Find the user by email
         const user = await User.findOne({ email });
         if (!user) {
+            console.log('User not found for email:', email);
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
+        console.log('User found:', { id: user._id, email: user.email, hasPassword: !!user.password });
+
         // Compare the provided password with the hashed password
         const isMatch = await bcrypt.compare(password, user.password);
+        console.log('Password comparison result:', isMatch);
+        
         if (!isMatch) {
+            console.log('Password mismatch for user:', email);
             return res.status(401).json({ message: 'Invalid credentials' });
         }
+
+        console.log('Login successful for user:', email);
 
         // Create a JWT token with the user ID
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -112,6 +122,8 @@ export const resetPassword = async (req, res) => {
     try {
         const { token, newPassword } = req.body;
 
+        console.log('Reset password request received:', { token: token ? 'PRESENT' : 'MISSING', newPassword: newPassword ? 'PRESENT' : 'MISSING' });
+
         if (!token || !newPassword) {
             return res.status(400).json({ message: 'Token and new password are required.' });
         }
@@ -121,16 +133,23 @@ export const resetPassword = async (req, res) => {
             resetPasswordExpires: { $gt: Date.now() },
         });
 
+        console.log('User found for reset:', user ? { id: user._id, email: user.email } : 'NOT_FOUND');
+
         if (!user) {
             return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
         }
 
-        // Hash the new password and save
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(newPassword, salt);
+        console.log('Setting new password for user:', user.email);
+        
+        // Set the new password (will be hashed by pre-save middleware)
+        user.password = newPassword;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
+        
+        console.log('Saving user with new password...');
         await user.save();
+        
+        console.log('Password reset successful for user:', user.email);
 
         res.status(200).json({ message: 'Password has been reset successfully.' });
     } catch (error) {

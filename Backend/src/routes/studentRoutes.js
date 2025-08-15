@@ -1,5 +1,5 @@
 import express from 'express';
-import { addStudent, updateStudent, deleteStudent, getStudents, sendStudentCredentials, sendBulkCredentials, sendInvitations } from '../controllers/studentController.js';
+import { addStudent, updateStudent, deleteStudent, getStudents, sendStudentCredentials, sendBulkCredentials, sendInvitations, cleanupIndexes } from '../controllers/studentController.js';
 import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -33,5 +33,9 @@ router.post('/send-bulk-credentials', verifyToken, sendBulkCredentials);
 // POST /api/students/send-invitations
 // Route to send invitations to students for the future app.
 router.post('/send-invitations', verifyToken, sendInvitations);
+
+// POST /api/students/cleanup-indexes
+// Route to clean up conflicting database indexes (run once to fix existing conflicts).
+router.post('/cleanup-indexes', verifyToken, cleanupIndexes);
 
 export default router;

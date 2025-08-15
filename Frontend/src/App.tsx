@@ -92,12 +92,33 @@ export default function App() {
     const token = urlParams.get('token');
     const pathname = window.location.pathname;
     
+    console.log('App: Checking URL parameters:', { pathname, token: token ? 'PRESENT' : 'MISSING', search: window.location.search });
+    
     if (token && (pathname === '/new-password' || pathname.includes('new-password'))) {
+      console.log('App: Setting page to newPassword due to token in URL');
       setCurrentPage('newPassword');
     } else if (pathname === '/forgot-password') {
+      console.log('App: Setting page to forgotPassword');
       setCurrentPage('forgotPassword');
+    } else if (token) {
+      // If there's a token but we're not on the new-password page, redirect to it
+      console.log('App: Token found but not on new-password page, redirecting');
+      setCurrentPage('newPassword');
     }
   }, []);
+
+  // Check for existing authentication on app load
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    
+    console.log('App: Checking existing authentication:', { hasToken: !!token, hasUserId: !!userId });
+    
+    if (token && userId && currentPage === 'login') {
+      console.log('App: User already authenticated, redirecting to allocation page');
+      setCurrentPage('allocation');
+    }
+  }, [currentPage]);
 
   // Fetch data on initial load and when the user logs in
   useEffect(() => {

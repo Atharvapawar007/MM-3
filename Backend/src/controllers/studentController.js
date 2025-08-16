@@ -357,7 +357,7 @@ export const sendInvitations = async (req, res) => {
         // Get all students for this bus who haven't received invitations yet
         const students = await Student.find({ 
             busId: busId,
-            invitationSent: false 
+            credentialsGenerated: false 
         });
 
         if (students.length === 0) {
@@ -373,8 +373,9 @@ export const sendInvitations = async (req, res) => {
                 const emailResult = await sendInvitationEmail(student.email, student._id);
 
                 if (emailResult.success) {
-                    // Mark invitation as sent
+                    // Mark invitation as sent and credentials as generated
                     student.invitationSent = true;
+                    student.credentialsGenerated = true;
                     await student.save();
                     
                     results.push(`Invitation sent successfully to ${student.name} (${student._id})`);

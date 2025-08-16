@@ -63,6 +63,19 @@ const api = {
     return handleResponse(response);
   },
 
+  updateDriver: async (driverId: string, driverData: Partial<Driver>): Promise<Driver> => {
+    const response = await fetch(`${API_BASE_URL}/drivers/update/${driverId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(driverData),
+    });
+    const data = await handleResponse(response);
+    return data.driver || data;
+  },
+
   // Bus endpoints
   getBuses: async (): Promise<Bus[]> => {
     const response = await fetch(`${API_BASE_URL}/buses/list`, {

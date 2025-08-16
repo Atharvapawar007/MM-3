@@ -24,6 +24,13 @@ const DriverSchema = new Schema({
         required: true,
         trim: true,
     },
+    email: {
+        type: String,
+        required: true,
+        unique: true, // Ensures no two drivers have the same email
+        trim: true,
+        lowercase: true,
+    },
     photo: {
         type: String, // Storing photo as a URL or Base64 string
         trim: true,

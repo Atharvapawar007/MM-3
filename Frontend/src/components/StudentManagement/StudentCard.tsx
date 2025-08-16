@@ -1,55 +1,49 @@
 import { Card, CardContent } from '../ui/card';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Button } from '../ui/button';
-import { Edit, Trash2, KeyRound, Loader2, CheckCircle } from 'lucide-react';
+import { Edit, Trash2, Loader2, CheckCircle } from 'lucide-react';
 import type { Student } from '../../types';
 
 interface StudentCardProps {
-  student: Student;
-  onEdit: () => void;
-  onDelete: () => void;
-  onSendCredentials: (studentPrn: string) => void;
-  isActionLoading: boolean;
+  student: Student;
+  onEdit: () => void;
+  onDelete: () => void;
+  isActionLoading: boolean;
 }
 
 export function StudentCard({
-  student,
-  onEdit,
-  onDelete,
-  onSendCredentials,
-  isActionLoading
+  student,
+  onEdit,
+  onDelete,
+  isActionLoading
 }: StudentCardProps) {
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   return (
-    <Card className="border shadow-card hover:shadow-elevated transition-all duration-200">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <Avatar className="w-10 h-10 border-2 border-primary">
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              {getInitials(student.name)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <h4 className="font-medium text-foreground">{student.name}</h4>
-            <p className="text-xs text-muted-foreground">PRN: {student.prn}</p>
-          </div>
-          {student.credentialsGenerated && (
-            <div className="text-success">
-              <CheckCircle className="w-4 h-4" />
-            </div>
-          )}
-        </div>
+    <Card className="border bg-card cursor-pointer transform transition-transform duration-200 ease-out shadow-md hover:shadow-lg hover:scale-105 hover:border-secondary/50">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <Avatar className="w-10 h-10 border-2 border-primary">
+            <AvatarFallback className="bg-primary text-primary-foreground">
+              {getInitials(student.name)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <h4 className="font-medium text-foreground">{student.name}</h4>
+            <p className="text-xs text-muted-foreground">PRN: {student.prn}</p>
+          </div>
+          <div className={`${student.credentialsGenerated ? 'visible' : 'invisible'} text-green-600`}>
+            <CheckCircle className="w-4 h-4" />
+          </div>
+        </div>
 
-        <div className="space-y-1 text-xs mb-3">
-          <p className="text-foreground"><span className="font-medium">Gender:</span> {student.gender}</p>
-          <p className="text-foreground"><span className="font-medium">Email:</span> {student.email}</p>
-          {student.credentialsGenerated && (
-            <p className="text-success font-medium">✓ Invitation Sent</p>
-          )}
-        </div>
+        <div className="space-y-1 text-xs mb-3">
+          <p className="text-foreground"><span className="font-medium">Gender:</span> {student.gender}</p>
+          <p className="text-foreground"><span className="font-medium">Email:</span> {student.email}</p>
+          <p className={`${student.credentialsGenerated ? 'visible' : 'invisible'} text-green-600 font-medium`}>✓ Invitation Sent</p>
+        </div>
 
         <div className="flex gap-2">
           <Button
@@ -72,7 +66,7 @@ export function StudentCard({
             {isActionLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
           </Button>
 
-          <Button
+{/*           <Button
             variant="outline"
             size="sm"
             onClick={() => onSendCredentials(student.prn)}
@@ -80,7 +74,8 @@ export function StudentCard({
             className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
           >
             {isActionLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <KeyRound className="w-3 h-3" />}
-          </Button>
+          </Button> */}
+
         </div>
       </CardContent>
     </Card>

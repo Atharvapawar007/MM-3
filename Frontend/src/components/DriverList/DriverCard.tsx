@@ -1,7 +1,7 @@
 import { Card, CardContent } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
-import { Loader2, Trash2, Phone, User, Bus } from 'lucide-react';
+import { Loader2, Trash2, Phone, User, Bus, Mail, Pencil } from 'lucide-react';
 import type { Driver } from '../../types';
 
 interface DriverCardProps {
@@ -10,9 +10,10 @@ interface DriverCardProps {
   onSelect: (driver: Driver) => void;
   onDelete: (driver: Driver) => void;
   isDeleting?: boolean;
+  onEdit?: (driver: Driver) => void;
 }
 
-export function DriverCard({ driver, index, onSelect, onDelete, isDeleting = false }: DriverCardProps) {
+export function DriverCard({ driver, index, onSelect, onDelete, isDeleting = false, onEdit }: DriverCardProps) {
   const getInitials = (name: string) => {
     if (!name) return '';
     const names = name.split(' ');
@@ -26,7 +27,7 @@ export function DriverCard({ driver, index, onSelect, onDelete, isDeleting = fal
     <Card 
       key={driver.id}
       onClick={() => onSelect(driver)}
-      className="shadow-card border-2 hover:shadow-elevated transition-all duration-200 bg-card cursor-pointer"
+      className="border bg-card cursor-pointer transform transition-transform duration-200 ease-out shadow-md hover:shadow-lg hover:scale-105 hover:border-secondary/50"
     >
       <CardContent className="p-6">
         <div className="flex items-center gap-4 mb-4">
@@ -49,15 +50,27 @@ export function DriverCard({ driver, index, onSelect, onDelete, isDeleting = fal
             </p>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => { e.stopPropagation(); onDelete(driver); }}
-            className="p-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
-            disabled={isDeleting}
-          >
-            {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-          </Button>
+          <div className="flex items-center gap-2">
+            {onEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => { e.stopPropagation(); onEdit(driver); }}
+                className="p-2 border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
+              >
+                <Pencil className="w-4 h-4" />
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => { e.stopPropagation(); onDelete(driver); }}
+              className="p-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+              disabled={isDeleting}
+            >
+              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-3">
@@ -65,6 +78,13 @@ export function DriverCard({ driver, index, onSelect, onDelete, isDeleting = fal
             <Phone className="w-4 h-4 text-blue-700" />
             <span className="text-sm text-foreground">
               {driver.phone || 'N/A'}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Mail className="w-4 h-4 text-blue-700" />
+            <span className="text-sm text-foreground">
+              {driver.email || 'N/A'}
             </span>
           </div>
           

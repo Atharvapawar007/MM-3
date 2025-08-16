@@ -1,5 +1,5 @@
 import express from 'express';
-import { addDriver, getDrivers, deleteDriver, getDriverById } from '../controllers/driverController.js';
+import { addDriver, getDrivers, deleteDriver, getDriverById, updateDriver } from '../controllers/driverController.js';
 import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -21,5 +21,9 @@ router.get('/:id', verifyToken, getDriverById);
 // DELETE /api/drivers/delete/:id
 // Route to delete a driver and their associated students.
 router.delete('/delete/:id', verifyToken, deleteDriver);
+
+// PUT /api/drivers/update/:id
+// Route to update a driver's details (no bus changes here)
+router.put('/update/:id', verifyToken, updateDriver);
 
 export default router;

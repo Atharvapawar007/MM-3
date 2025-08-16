@@ -292,22 +292,6 @@ export function StudentManagementPage({
     }
   };
 
-  const handleSendCredentials = async (studentId: string) => {
-    setStudentActionId(studentId);
-    try {
-      await api.sendCredentials(studentId);
-      setStudents(prev => prev.map(s => {
-        const sId = s.id || s._id || s.prn;
-        return sId === studentId ? { ...s, credentialsGenerated: true } : s;
-      }));
-      toast.success('Credentials sent successfully!');
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to send credentials.';
-      toast.error(errorMessage);
-    } finally {
-      setStudentActionId(null);
-    }
-  };
   
   const handleSendAllInvitations = async () => {
     if (!selectedBusId) {
@@ -324,15 +308,8 @@ export function StudentManagementPage({
     try {
       await api.sendInvitations(selectedBusId);
       
-      // Update the students list to mark invitations as sent
-      setStudents(prev => prev.map(s => {
-        const sId = s.id || s._id || s.prn;
-        const hasInvitation = s.invitationSent || studentsWithoutInvitations.some(swi => {
-          const swiId = swi.id || swi._id || swi.prn;
-          return swiId === sId;
-        });
-        return hasInvitation ? { ...s, invitationSent: true } : s;
-      }));
+      // Refresh the students list to get updated credentialsGenerated status from backend
+      await fetchStudentsForBus(selectedBusId);
       
       toast.success('Invitations sent successfully!', {
         description: `Email invitations sent to ${studentsWithoutInvitations.length} students for the BusTracker app`
@@ -373,7 +350,7 @@ export function StudentManagementPage({
   const isSearchMode = searchTerm.length > 0;
   const studentsWithoutInvitations = useMemo(() => {
     try {
-      return selectedBus ? students.filter(s => s && s.busId === selectedBus.id && !s.invitationSent) : [];
+      return selectedBus ? students.filter(s => s && s.busId === selectedBus.id && !s.credentialsGenerated) : [];
     } catch (error) {
       console.error('Error filtering students without invitations:', error);
       return [];
@@ -555,7 +532,7 @@ export function StudentManagementPage({
           {isSearchMode ? (
             <div className="flex flex-col">
               <div className="p-6">
-                <Card className="shadow-card border-0">
+                <Card className="shadow-card border">
                   <CardHeader className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
@@ -598,7 +575,6 @@ export function StudentManagementPage({
                         student={student}
                         onEdit={() => handleEditStudentClick(student)}
                         onDelete={() => handleDeleteStudentClick(student)}
-                        onSendCredentials={handleSendCredentials}
                         isActionLoading={studentActionId === (student.id || student._id || student.prn)}
                       />
                     ))}
@@ -649,7 +625,6 @@ export function StudentManagementPage({
                         student={student}
                         onEdit={() => handleEditStudentClick(student)}
                         onDelete={() => handleDeleteStudentClick(student)}
-                        onSendCredentials={handleSendCredentials}
                         isActionLoading={studentActionId === (student.id || student._id || student.prn)}
                       />
                     ))}

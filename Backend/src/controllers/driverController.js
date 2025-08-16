@@ -7,10 +7,10 @@ import Student from '../models/Student.js';
 export const addDriver = async (req, res) => {
     try {
         // The fix: Add 'userId' to the destructured body to receive the ID from the frontend.
-        const { userId, name, number, gender, contact, photo, busPlate, busNumber, busPhoto } = req.body;
+        const { userId, name, number, gender, contact, email, photo, busPlate, busNumber, busPhoto } = req.body;
 
         // Basic validation - Add userId to the list of required fields.
-        if (!userId || !name || !number || !gender || !contact || !busPlate || !busNumber) {
+        if (!userId || !name || !number || !gender || !contact || !email || !busPlate || !busNumber) {
             return res.status(400).json({ message: 'All required fields must be provided' });
         }
 
@@ -18,6 +18,12 @@ export const addDriver = async (req, res) => {
         const existingDriver = await Driver.findOne({ number });
         if (existingDriver) {
             return res.status(409).json({ message: 'Driver with this number already exists' });
+        }
+
+        // Check for duplicate email
+        const existingEmail = await Driver.findOne({ email });
+        if (existingEmail) {
+            return res.status(409).json({ message: 'Driver with this email already exists' });
         }
 
         // Check for duplicate bus details
@@ -34,6 +40,7 @@ export const addDriver = async (req, res) => {
             number,
             gender,
             contact,
+            email,
             photo,
             busPlate,
             busNumber,
@@ -71,6 +78,7 @@ export const getDrivers = async (req, res) => {
                 phone: driverObj.contact,          // Map contact to phone
                 driverId: driverObj.number,        // Map number to driverId
                 gender: driverObj.gender,
+                email: driverObj.email,            // Include email field
                 photoUrl: driverObj.photo,         // Map photo to photoUrl
                 bus: driverObj.busPlate ? {
                     id: driverObj._id.toString(),  // Use same ID for bus
@@ -110,6 +118,7 @@ export const getDriverById = async (req, res) => {
             phone: driverObj.contact,          // Map contact to phone
             driverId: driverObj.number,        // Map number to driverId
             gender: driverObj.gender,
+            email: driverObj.email,            // Include email field
             photoUrl: driverObj.photo,         // Map photo to photoUrl
             bus: driverObj.busPlate ? {
                 id: driverObj._id.toString(),  // Use same ID for bus
@@ -227,5 +236,69 @@ export const deleteDriver = async (req, res) => {
                 ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
             }
         });
+    }
+};
+
+// ================================================================
+// Update a driver (without changing bus assignment)
+// ================================================================
+export const updateDriver = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, number, gender, contact, email, photo } = req.body;
+
+        const driver = await Driver.findById(id);
+        if (!driver) {
+            return res.status(404).json({ message: 'Driver not found' });
+        }
+
+        // Duplicate checks for number and email when changed
+        if (typeof number !== 'undefined' && number !== driver.number) {
+            const existingByNumber = await Driver.findOne({ number });
+            if (existingByNumber && existingByNumber._id.toString() !== id) {
+                return res.status(409).json({ message: 'Driver with this number already exists' });
+            }
+        }
+
+        if (typeof email !== 'undefined' && email !== driver.email) {
+            const existingByEmail = await Driver.findOne({ email });
+            if (existingByEmail && existingByEmail._id.toString() !== id) {
+                return res.status(409).json({ message: 'Driver with this email already exists' });
+            }
+        }
+
+        // Apply updates (bus fields are intentionally not editable here)
+        if (typeof name !== 'undefined') driver.name = name;
+        if (typeof number !== 'undefined') driver.number = number;
+        if (typeof gender !== 'undefined') driver.gender = gender;
+        if (typeof contact !== 'undefined') driver.contact = contact;
+        if (typeof email !== 'undefined') driver.email = email;
+        if (typeof photo !== 'undefined') driver.photo = photo;
+
+        await driver.save();
+
+        const driverObj = driver.toObject();
+        const transformedDriver = {
+            id: driverObj._id.toString(),
+            _id: driverObj._id.toString(),
+            name: driverObj.name,
+            phone: driverObj.contact,
+            driverId: driverObj.number,
+            gender: driverObj.gender,
+            email: driverObj.email,
+            photoUrl: driverObj.photo,
+            bus: driverObj.busPlate ? {
+                id: driverObj._id.toString(),
+                plateNumber: driverObj.busPlate,
+                busNumber: driverObj.busNumber
+            } : null,
+            createdAt: driverObj.createdAt,
+            updatedAt: driverObj.updatedAt
+        };
+
+        res.status(200).json({ message: 'Driver updated successfully', driver: transformedDriver });
+    } catch (error) {
+        console.error('Error updating driver:', error);
+        res.status(500).json({ message: 'Server error while updating driver', error: error.message });
     }
 };

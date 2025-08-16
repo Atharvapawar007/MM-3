@@ -18,6 +18,7 @@ export interface Driver {
   driverId: string;
   gender: string;
   phone: string;
+  email: string;
   photoUrl?: string;
   busId?: string;
   bus?: Bus;

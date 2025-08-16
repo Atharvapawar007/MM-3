@@ -4,6 +4,8 @@ import api from '../services/api';
 import { ConfirmationModal } from './common/ConfirmationModal';
 import { Button } from './ui/button';
 import { DriverCard } from './DriverList/DriverCard';
+import DriverFormModal from './DriverList/DriverFormModal';
+
 import { User, ArrowLeft, LogOut, RefreshCcw } from 'lucide-react';
 import { Banner } from './Banner';
 import { Footer } from './Footer';
@@ -26,6 +28,9 @@ export function DriverListPage({
   const [driverToDelete, setDriverToDelete] = useState<Driver | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const fetchDrivers = useCallback(async () => {
     setLoading(true);
@@ -45,10 +50,41 @@ export function DriverListPage({
     fetchDrivers();
   }, [fetchDrivers]);
 
-    const handleDeleteClick = (driver: Driver) => {
+  const handleDeleteClick = (driver: Driver) => {
     setDriverToDelete(driver);
     setIsDeleteModalOpen(true);
   };
+
+  const handleEditClick = (driver: Driver) => {
+    setEditingDriver(driver);
+    setIsEditOpen(true);
+  };
+
+  const handleUpdateDriver = useCallback(async (updatedFields: Partial<Driver>) => {
+    if (!editingDriver) return;
+    setIsSaving(true);
+    try {
+      // Map UI fields to backend expectations
+      const payload: any = {
+        name: updatedFields.name ?? editingDriver.name,
+        number: (updatedFields as any).driverId ?? editingDriver.driverId,
+        contact: (updatedFields as any).phone ?? editingDriver.phone,
+        email: updatedFields.email ?? editingDriver.email,
+        gender: updatedFields.gender ?? editingDriver.gender,
+      };
+
+      const updated = await api.updateDriver(editingDriver.id, payload);
+      setDrivers(prev => prev.map(d => (d.id === updated.id ? updated : d)));
+      toast.success('Driver updated successfully');
+      setIsEditOpen(false);
+      setEditingDriver(null);
+    } catch (error) {
+      console.error('Update driver error:', error);
+      toast.error('Failed to update driver. ' + (error instanceof Error ? error.message : ''));
+    } finally {
+      setIsSaving(false);
+    }
+  }, [editingDriver]);
 
   const handleConfirmDelete = useCallback(async () => {
     if (!driverToDelete) return;
@@ -77,12 +113,12 @@ export function DriverListPage({
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
               <Button
-                  onClick={onBack}
-                  variant="outline"
-                  className="flex items-center gap-2 border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Allocation
+                onClick={onBack}
+                variant="outline"
+                className="flex items-center gap-2 border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Allocation
               </Button>
               <div className="flex items-center gap-4">
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary">
@@ -126,7 +162,8 @@ export function DriverListPage({
                   driver={driver} 
                   index={index}
                   onSelect={onDriverSelect} 
-                  onDelete={handleDeleteClick} 
+                  onDelete={handleDeleteClick}
+                  onEdit={handleEditClick}
                   isDeleting={isDeleting && driverToDelete?.id === driver.id}
                 />
               ))}
@@ -143,6 +180,14 @@ export function DriverListPage({
         title="Delete Driver"
         description={`Are you sure you want to delete ${driverToDelete?.name}? This action cannot be undone.`}
         loading={isDeleting}
+      />
+
+      <DriverFormModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onSubmit={handleUpdateDriver}
+        driver={editingDriver}
+        isLoading={isSaving}
       />
     </div>
   );

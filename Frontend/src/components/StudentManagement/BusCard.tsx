@@ -21,17 +21,9 @@ export function BusCard({ bus, isSelected, onSelect, studentCount }: BusCardProp
     >
       <CardContent className="p-4">
         <div className="flex items-center gap-3 mb-3">
-          {bus.busPhoto ? (
-            <img 
-              src={bus.busPhoto} 
-              alt={`Bus ${bus.busNumber}`}
-              className="w-12 h-12 object-cover rounded-lg border-2 border-primary"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center border-2 border-primary bg-primary/10">
-              <Bus className="w-6 h-6 text-primary" />
-            </div>
-          )}
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center border-2 border-primary bg-primary/10">
+            <Bus className="w-6 h-6 text-primary" />
+          </div>
           <div className="flex-1">
             <h3 className="font-medium text-foreground">
               Bus {bus.busNumber}

@@ -4,7 +4,6 @@ export interface Bus {
   busNumber: string;
   plateNumber: string;
   driverId?: string;
-  busPhoto?: string;
   driverName: string;
   driverContact: string;
   createdAt?: string;
@@ -15,12 +14,15 @@ export interface Driver {
   id: string;
   _id?: string;
   name: string;
-  driverId: string;
+  driverId?: string;
+  number?: string;
   gender: string;
-  phone: string;
-  email: string;
-  photoUrl?: string;
+  phone?: string;
+  contact?: string;
+  email?: string;
   busId?: string;
+  busPlate?: string;
+  busNumber?: string;
   bus?: Bus;
   createdAt?: string;
   updatedAt?: string;
@@ -36,9 +38,9 @@ export interface Student {
   busId: string;
   username?: string;
   password?: string;
-  credentialsGenerated: boolean;
-  invitationSent: boolean;
-  createdAt: string;
+  credentialsGenerated?: boolean;
+  invitationSent?: boolean;
+  createdAt?: string;
   updatedAt?: string;
 }
 

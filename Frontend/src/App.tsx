@@ -54,7 +54,7 @@ export default function App() {
       }
 
       // Fetch drivers
-      const driversResponse = await fetch('http://localhost:3000/api/drivers/list', {
+      const driversResponse = await fetch('http://localhost:5000/api/drivers/list', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -67,7 +67,7 @@ export default function App() {
       }
 
       // Fetch students
-      const studentsResponse = await fetch('http://localhost:3000/api/students/list', {
+      const studentsResponse = await fetch('http://localhost:5000/api/students/list', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -211,7 +211,7 @@ export default function App() {
             onLogout={handleLogout}
             onViewDrivers={handleViewDrivers}
             onViewStudents={handleViewStudents}
-            drivers={drivers}
+            drivers={drivers as any[]}
             onAddDriver={handleAddDriver}
             onDeleteDriver={handleDeleteDriver}
           />
@@ -219,7 +219,7 @@ export default function App() {
       case 'driverList':
         return (
           <DriverListPage 
-            drivers={drivers}
+            drivers={drivers as any[]}
             onBack={handleBackToAllocation}
             onLogout={handleLogout}
             onDeleteDriver={handleDeleteDriver}
@@ -228,10 +228,10 @@ export default function App() {
       case 'studentManagement':
         return (
           <StudentManagementPage
-            drivers={drivers}
-            students={students}
-            onAddStudent={handleAddStudent}
-            onUpdateStudent={handleUpdateStudent}
+            drivers={drivers as any[]}
+            students={students as any[]}
+            onAddStudent={handleAddStudent as any}
+            onUpdateStudent={handleUpdateStudent as any}
             onDeleteStudent={handleDeleteStudent}
             onBack={handleBackToAllocation}
             onLogout={handleLogout}

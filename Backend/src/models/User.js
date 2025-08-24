@@ -1,54 +1,50 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+console.log('[models/User] Module loaded');
+import { sequelize } from '../services/database.js';
 import bcrypt from 'bcrypt';
-const { Schema } = mongoose;
 
-const UserSchema = new Schema({
+const User = sequelize.define('User', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     email: {
-        type: String,
-        required: true,
+        type: DataTypes.STRING,
+        allowNull: false,
         unique: true,
-        trim: true,
-        lowercase: true,
+        validate: { isEmail: true },
+        set(value) {
+            this.setDataValue('email', value.toLowerCase().trim());
+        }
     },
     password: {
-        type: String,
-        required: true,
+        type: DataTypes.STRING,
+        allowNull: false
     },
     role: {
-        type: String,
-        enum: ['admin', 'sub-admin'], // Define roles for your admin users
-        default: 'admin',
+        type: DataTypes.ENUM('admin', 'sub-admin'),
+        defaultValue: 'admin'
     },
     resetPasswordToken: {
-        type: String,
+        type: DataTypes.STRING,
+        field: 'reset_password_token'
     },
     resetPasswordExpires: {
-        type: Date,
-    },
+        type: DataTypes.DATE,
+        field: 'reset_password_expires'
+    }
 }, {
-    timestamps: true,
-});
-
-// Hash the password before saving the user document
-UserSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) {
-        return next();
-    }
-    
-    // Check if password is already hashed (bcrypt hashes start with $2b$)
-    if (this.password.startsWith('$2b$')) {
-        return next();
-    }
-    
-    try {
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (error) {
-        next(error);
+    tableName: 'users',
+    underscored: true,
+    hooks: {
+        beforeSave: async (user) => {
+            if (user.changed('password') && !user.password.startsWith('$2b$')) {
+                const salt = await bcrypt.genSalt(10);
+                user.password = await bcrypt.hash(user.password, salt);
+            }
+        }
     }
 });
-
-const User = mongoose.model('User', UserSchema);
 
 export default User;

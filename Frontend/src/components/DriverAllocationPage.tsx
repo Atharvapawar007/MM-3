@@ -1,11 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Bus, User, Phone, LogOut, CheckCircle, Upload, Users, Camera, Loader2, Mail } from 'lucide-react';
+import { Bus, User, Phone, LogOut, CheckCircle, Users, Loader2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { Banner } from './Banner';
 import { Footer } from './Footer';
@@ -17,10 +16,8 @@ interface Driver {
   gender: string;
   contact: string;
   email: string;
-  photo?: string;
   busPlate: string;
   busNumber: string;
-  busPhoto?: string;
 }
 
 interface DriverAllocationPageProps {
@@ -35,48 +32,13 @@ interface DriverAllocationPageProps {
 export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, drivers, onAddDriver }: DriverAllocationPageProps) {
   const [busPlate, setBusPlate] = useState('');
   const [busNumber, setBusNumber] = useState('');
-  const [busPhoto, setBusPhoto] = useState<string>('');
   const [driverName, setDriverName] = useState('');
   const [driverNumber, setDriverNumber] = useState('');
   const [driverGender, setDriverGender] = useState('');
   const [driverContact, setDriverContact] = useState('');
   const [driverEmail, setDriverEmail] = useState('');
-  const [driverPhoto, setDriverPhoto] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const driverFileInputRef = useRef<HTMLInputElement>(null);
-  const busFileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleDriverPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error('File size should be less than 5MB');
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setDriverPhoto(event.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleBusPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error('File size should be less than 5MB');
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setBusPhoto(event.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,15 +65,13 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
       gender: driverGender,
       contact: driverContact,
       email: driverEmail,
-      photo: driverPhoto,
       busPlate: busPlate,
       busNumber: busNumber,
-      busPhoto: busPhoto,
       userId: userId
     };
 
     try {
-      const response = await fetch('http://localhost:3000/api/drivers/add', {
+      const response = await fetch('http://localhost:5000/api/drivers/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,19 +89,11 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
         // Reset form
         setBusPlate('');
         setBusNumber('');
-        setBusPhoto('');
         setDriverName('');
         setDriverNumber('');
         setDriverGender('');
         setDriverContact('');
         setDriverEmail('');
-        setDriverPhoto('');
-        if (driverFileInputRef.current) {
-          driverFileInputRef.current.value = '';
-        }
-        if (busFileInputRef.current) {
-          busFileInputRef.current.value = '';
-        }
       } else {
         toast.error(data.message || 'Failed to add driver. Please try again.');
       }
@@ -221,48 +173,6 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
 
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label className="text-foreground">Bus Photo</Label>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg border-2 border-[#1e3a8a] flex items-center justify-center overflow-hidden">
-                      {busPhoto ? (
-                        <img
-                          src={busPhoto}
-                          alt="Bus photo"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-blue-100 text-muted-foreground">
-                          <Bus className="w-6 h-6" />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1">
-                      <input
-                        ref={busFileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleBusPhotoUpload}
-                        className="hidden"
-                        id="busPhoto"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => busFileInputRef.current?.click()}
-                        className="flex items-center gap-2 border-2 border-[#1e3a8a] text-[#1e3a8a] hover:bg-[#1e3a8a] hover:text-white transform transition-transform duration-300 hover:scale-105"
-                      >
-                        <Upload className="w-4 h-4" />
-                        <span>Upload Bus Photo</span>
-                      </Button>
-                      <p className="text-xs mt-1 text-muted-foreground">
-                        Max file size: 5MB
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="busPlate" className="text-foreground">
                     Bus Plate Number *
                   </Label>
@@ -325,44 +235,6 @@ export function DriverAllocationPage({ onLogout, onViewDrivers, onViewStudents, 
               </CardHeader>
 
               <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground">Driver Photo</Label>
-                  <div className="flex items-center gap-4">
-                    <Avatar className="w-16 h-16 border-2 border-accent bg-amber-100">
-                      {driverPhoto ? (
-                        <AvatarImage src={driverPhoto} alt="Driver photo" />
-                      ) : (
-                        <AvatarFallback className="bg-amber-100 text-muted-foreground border-2 border-amber-500">
-                          <Camera className="w-6 h-6" />
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-
-                    <div className="flex-1">
-                      <input
-                        ref={driverFileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleDriverPhotoUpload}
-                        className="hidden"
-                        id="driverPhoto"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => driverFileInputRef.current?.click()}
-                        className="flex items-center gap-2 border-2 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white transform transition-transform duration-300 hover:scale-105"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Upload Photo
-                      </Button>
-                      <p className="text-xs mt-1 text-muted-foreground">
-                        Max file size: 5MB
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="driverName" className="text-foreground">
                     Driver Name *

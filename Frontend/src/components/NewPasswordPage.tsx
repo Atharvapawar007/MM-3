@@ -79,7 +79,7 @@ export function NewPasswordPage({ onBackToLogin }: NewPasswordPageProps) {
 
     try {
       console.log('NewPasswordPage: Making API call to reset password');
-      const response = await fetch('http://localhost:3000/api/auth/reset-password', {
+      const response = await fetch('http://localhost:5000/api/auth/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

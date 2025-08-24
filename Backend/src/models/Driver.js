@@ -1,65 +1,81 @@
-import mongoose from 'mongoose';
-const { Schema } = mongoose;
+import { DataTypes } from 'sequelize';
+console.log('[models/Driver] Module loaded');
+import { sequelize } from '../services/database.js';
 
-const DriverSchema = new Schema({
+const Driver = sequelize.define('Driver', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     name: {
-        type: String,
-        required: true,
-        trim: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        set(value) {
+            this.setDataValue('name', value.trim());
+        }
     },
     number: {
-        type: String,
-        required: true,
-        unique: true, // Ensures no two drivers have the same number
-        trim: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        set(value) {
+            this.setDataValue('number', value.trim());
+        }
     },
     gender: {
-        type: String,
-        required: true,
-        enum: ['male', 'female', 'other'],
-        lowercase: true,
+        type: DataTypes.ENUM('male', 'female', 'other'),
+        allowNull: false,
+        set(value) {
+            this.setDataValue('gender', value.toLowerCase());
+        }
     },
     contact: {
-        type: String,
-        required: true,
-        trim: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        set(value) {
+            this.setDataValue('contact', value.trim());
+        }
     },
     email: {
-        type: String,
-        required: true,
-        unique: true, // Ensures no two drivers have the same email
-        trim: true,
-        lowercase: true,
-    },
-    photo: {
-        type: String, // Storing photo as a URL or Base64 string
-        trim: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: { isEmail: true },
+        set(value) {
+            this.setDataValue('email', value.toLowerCase().trim());
+        }
     },
     busPlate: {
-        type: String,
-        required: true,
-        unique: true, // Ensures no two buses have the same plate number
-        trim: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        field: 'bus_plate',
+        set(value) {
+            this.setDataValue('busPlate', value.trim());
+        }
     },
     busNumber: {
-        type: String,
-        required: true,
-        unique: true, // Ensures no two buses have the same number
-        trim: true,
-    },
-    busPhoto: {
-        type: String, // Storing bus photo as a URL or Base64 string
-        trim: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        field: 'bus_number',
+        set(value) {
+            this.setDataValue('busNumber', value.trim());
+        }
     },
     userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User', // Reference to the User model
-        required: true,
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'user_id',
+        references: {
+            model: 'users',
+            key: 'id'
+        }
     }
 }, {
-    timestamps: true, // Adds createdAt and updatedAt timestamps
+    tableName: 'drivers',
+    underscored: true
 });
-
-const Driver = mongoose.model('Driver', DriverSchema);
 
 export default Driver;

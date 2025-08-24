@@ -13,17 +13,21 @@ import { PageLoader } from './common/PageLoader';
 import type { Driver } from '../types';
 
 interface DriverListPageProps {
-  onDriverSelect: (driver: Driver) => void;
+  drivers: Driver[];
+  onDriverSelect?: (driver: Driver) => void;
   onBack: () => void;
   onLogout: () => void;
+  onDeleteDriver: (driverId: string) => void;
 }
 
 export function DriverListPage({
+  drivers: propDrivers,
   onDriverSelect,
   onBack,
   onLogout,
+  onDeleteDriver,
 }: DriverListPageProps) {
-  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>(propDrivers || []);
   const [loading, setLoading] = useState(true);
   const [driverToDelete, setDriverToDelete] = useState<Driver | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -161,7 +165,7 @@ export function DriverListPage({
                   key={driver.id} 
                   driver={driver} 
                   index={index}
-                  onSelect={onDriverSelect} 
+                  onSelect={onDriverSelect || (() => {})} 
                   onDelete={handleDeleteClick}
                   onEdit={handleEditClick}
                   isDeleting={isDeleting && driverToDelete?.id === driver.id}

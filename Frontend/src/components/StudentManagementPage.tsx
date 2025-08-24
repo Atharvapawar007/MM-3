@@ -26,11 +26,21 @@ import { ConfirmationModal } from "./common/ConfirmationModal";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
 interface StudentManagementPageProps {
+  drivers?: any[];
+  students?: Student[];
+  onAddStudent?: (student: Student) => void;
+  onUpdateStudent?: (updatedStudent: Student) => void;
+  onDeleteStudent?: (studentId: string) => void;
   onBack: () => void;
   onLogout: () => void;
 }
 
 export function StudentManagementPage({
+  drivers: propDrivers,
+  students: propStudents,
+  onAddStudent,
+  onUpdateStudent,
+  onDeleteStudent,
   onBack,
   onLogout,
 }: StudentManagementPageProps) {

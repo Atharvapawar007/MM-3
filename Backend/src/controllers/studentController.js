@@ -1,8 +1,8 @@
-import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { sendCredentials, sendInvitationEmail } from '../services/emailService.js';
-import Student from '../models/Student.js';
-import Driver from '../models/Driver.js';
+import { Student, Driver } from '../models/index.js';
+import { Op } from 'sequelize';
+console.log('[studentController] Module loaded');
 
 // ================================================================
 // Add a new student
@@ -12,11 +12,12 @@ export const addStudent = async (req, res) => {
         const { name, prn, gender, email, busId } = req.body;
         const userId = req.user.id; // Extract userId from the authenticated user
 
-        console.log('Adding student with data:', { name, prn, gender, email, busId, userId });
+        console.log('[studentController.addStudent] data:', { name, prn, gender, email, busId, userId });
 
         // Check for duplicate PRN or email
-        const existingStudentByPRN = await Student.findById(prn);
-        const existingStudentByEmail = await Student.findOne({ email });
+        console.log('[studentController.addStudent] checking duplicates');
+        const existingStudentByPRN = await Student.findOne({ where: { prn } });
+        const existingStudentByEmail = await Student.findOne({ where: { email } });
 
         if (existingStudentByPRN) {
             console.log('Student with PRN already exists:', prn);
@@ -29,45 +30,49 @@ export const addStudent = async (req, res) => {
         }
 
         // Check if the bus exists
-        const bus = await Driver.findById(busId);
+        console.log('[studentController.addStudent] verifying bus:', busId);
+        const bus = await Driver.findByPk(busId);
         if (!bus) {
             console.log('Bus not found:', busId);
             return res.status(404).json({ message: 'The specified bus does not exist' });
         }
 
-        console.log('Creating new student with PRN as _id:', prn);
+        console.log('[studentController.addStudent] creating student with PRN:', prn);
 
-        // Create a new student instance with PRN as _id
-        const newStudent = new Student({
-            _id: prn, // PRN is now the _id
+        // Create a new student row
+        const newStudent = await Student.create({
+            prn,
             name,
             gender,
             email,
             busId,
-            userId, 
+            userId,
             credentialsGenerated: false,
-            invitationSent: false,
-            createdAt: new Date()
+            invitationSent: false
         });
 
-        await newStudent.save();
-        console.log('Student saved successfully to database');
-
-        // Return the student with id field set to PRN for frontend compatibility
+        // Prepare response expected by frontend
         const studentResponse = {
-            ...newStudent.toObject(),
-            id: newStudent._id, // Set id to PRN for frontend
-            // Remove the prn field since it's now the _id
-            invitationSent: false // New students haven't received invitations yet
+            id: String(newStudent.prn), // Use prn as id for frontend compatibility
+            prn: newStudent.prn,
+            name: newStudent.name,
+            gender: newStudent.gender,
+            email: newStudent.email,
+            busId: newStudent.busId,
+            userId: newStudent.userId,
+            credentialsGenerated: newStudent.credentialsGenerated,
+            invitationSent: newStudent.invitationSent,
+            createdAt: newStudent.createdAt,
+            updatedAt: newStudent.updatedAt
         };
 
-        console.log('Student created successfully:', studentResponse);
-        console.log('Sending response:', { message: 'Student successfully added', student: studentResponse });
+        console.log('[studentController.addStudent] created:', studentResponse);
+        console.log('[studentController.addStudent] sending response');
         res.status(201).json({ message: 'Student successfully added', student: studentResponse });
 
     } catch (error) {
-        console.error('Error adding student:', error);
-        console.error('Error stack:', error.stack);
+        console.error('[studentController.addStudent] Error:', error);
+        console.error('[studentController.addStudent] Stack:', error.stack);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -77,72 +82,52 @@ export const addStudent = async (req, res) => {
 // ================================================================
 export const updateStudent = async (req, res) => {
     try {
-        const { id } = req.params; // This is now the PRN
+        const { id } = req.params; // Treat this as PRN for backward compatibility
         const { name, prn, gender, email } = req.body;
+        console.log('[studentController.updateStudent] id:', id, 'body:', req.body);
 
         // Find the student by PRN
-        const student = await Student.findById(id);
+        const student = await Student.findOne({ where: { prn: id } });
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
 
         // If PRN is being updated, check if new PRN already exists
         if (prn && prn !== id) {
-            const existingStudent = await Student.findById(prn);
+            const existingStudent = await Student.findOne({ where: { prn } });
             if (existingStudent) {
                 return res.status(409).json({ message: 'A student with this PRN already exists' });
             }
         }
 
-        // Update the student fields
-        student.name = name || student.name;
-        student.gender = gender || student.gender;
-        student.email = email || student.email;
+        // Apply updates in-place (no need to delete/recreate in SQL)
+        console.log('[studentController.updateStudent] applying updates');
+        await student.update({
+            name: name ?? student.name,
+            gender: gender ?? student.gender,
+            email: email ?? student.email,
+            prn: prn ?? student.prn
+        });
 
-        // If PRN is being updated, we need to delete and recreate the document
-        if (prn && prn !== id) {
-            // Delete the old document
-            await Student.findByIdAndDelete(id);
-            
-            // Create new document with new PRN
-            const updatedStudent = new Student({
-                _id: prn,
-                name: student.name,
-                gender: student.gender,
-                email: student.email,
-                busId: student.busId,
-                username: student.username,
-                password: student.password,
-                credentialsGenerated: student.credentialsGenerated,
-                createdAt: student.createdAt,
-                updatedAt: new Date()
-            });
-            
-            await updatedStudent.save();
-            
-            const studentResponse = {
-                ...updatedStudent.toObject(),
-                id: updatedStudent._id,
-                prn: updatedStudent._id,
-                invitationSent: updatedStudent.invitationSent
-            };
-            
-            res.status(200).json({ message: 'Student details updated successfully', student: studentResponse });
-        } else {
-            await student.save();
-            
-            const studentResponse = {
-                ...student.toObject(),
-                id: student._id,
-                prn: student._id,
-                invitationSent: student.invitationSent
-            };
-            
-            res.status(200).json({ message: 'Student details updated successfully', student: studentResponse });
-        }
+        const studentResponse = {
+            id: String(student.prn), // Use prn as id for frontend compatibility
+            prn: student.prn,
+            name: student.name,
+            gender: student.gender,
+            email: student.email,
+            busId: student.busId,
+            userId: student.userId,
+            credentialsGenerated: student.credentialsGenerated,
+            invitationSent: student.invitationSent,
+            createdAt: student.createdAt,
+            updatedAt: student.updatedAt
+        };
+
+        console.log('[studentController.updateStudent] updated successfully');
+        res.status(200).json({ message: 'Student details updated successfully', student: studentResponse });
 
     } catch (error) {
-        console.error('Error updating student:', error);
+        console.error('[studentController.updateStudent] Error:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -152,35 +137,21 @@ export const updateStudent = async (req, res) => {
 // ================================================================
 export const deleteStudent = async (req, res) => {
     try {
-        const { id } = req.params; // This is now the PRN
-        
-        console.log('Attempting to delete student with ID/PRN:', id);
-        console.log('ID type:', typeof id);
-        console.log('ID length:', id ? id.length : 'undefined');
+        const { id } = req.params; // Treat as PRN
+        console.log('[studentController.deleteStudent] deleting PRN:', id);
 
-        // First, let's check if the student exists
-        const existingStudent = await Student.findById(id);
+        const existingStudent = await Student.findOne({ where: { prn: id } });
         if (!existingStudent) {
-            console.log('Student not found with ID:', id);
-            // Let's also try to find by email or name for debugging
-            const allStudents = await Student.find({});
-            console.log('All students in database:', allStudents.map(s => ({ _id: s._id, name: s.name, email: s.email })));
+            console.log('[studentController.deleteStudent] not found:', id);
             return res.status(404).json({ message: 'Student not found' });
         }
 
-        console.log('Found student to delete:', { _id: existingStudent._id, name: existingStudent.name, email: existingStudent.email });
-
-        const deletedStudent = await Student.findByIdAndDelete(id);
-        if (!deletedStudent) {
-            console.log('Student was found but deletion failed');
-            return res.status(404).json({ message: 'Student not found' });
-        }
-
-        console.log('Student deleted successfully:', { _id: deletedStudent._id, name: deletedStudent.name });
+        await Student.destroy({ where: { prn: id } });
+        console.log('[studentController.deleteStudent] deleted:', { prn: id, name: existingStudent.name });
         res.status(200).json({ message: 'Student successfully deleted' });
 
     } catch (error) {
-        console.error('Error deleting student:', error);
+        console.error('[studentController.deleteStudent] Error:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -191,25 +162,33 @@ export const deleteStudent = async (req, res) => {
 export const getStudents = async (req, res) => {
     try {
         const { busId } = req.query;
-        let students = []; // Initialize as an empty array
+        let students = [];
+        console.log('[studentController.getStudents] busId:', busId);
 
-        // FIX: Check if busId is a valid ObjectId before querying
-        if (busId && mongoose.Types.ObjectId.isValid(busId)) {
-            students = await Student.find({ busId });
+        if (busId) {
+            students = await Student.findAll({ where: { busId } });
         }
 
         // Transform students to include id and prn fields for frontend compatibility
-        const transformedStudents = students.map(student => ({
-            ...student.toObject(),
-            id: student._id, // Set id to PRN
-            prn: student._id, // Keep prn field for backward compatibility
-            invitationSent: student.invitationSent
+        const transformedStudents = students.map(s => ({
+            id: String(s.prn), // Use prn as id for frontend compatibility
+            prn: s.prn,
+            name: s.name,
+            gender: s.gender,
+            email: s.email,
+            busId: s.busId,
+            userId: s.userId,
+            credentialsGenerated: s.credentialsGenerated,
+            invitationSent: s.invitationSent,
+            createdAt: s.createdAt,
+            updatedAt: s.updatedAt
         }));
 
+        console.log('[studentController.getStudents] returning count:', transformedStudents.length);
         res.status(200).json(transformedStudents);
 
     } catch (error) {
-        console.error('Error fetching students:', error);
+        console.error('[studentController.getStudents] Error:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -219,9 +198,10 @@ export const getStudents = async (req, res) => {
 // ================================================================
 export const sendStudentCredentials = async (req, res) => {
     try {
-        const { id } = req.params; // This is now the PRN
+        const { id } = req.params; // Treat as PRN
+        console.log('[studentController.sendStudentCredentials] PRN:', id);
 
-        const student = await Student.findById(id);
+        const student = await Student.unscoped().findOne({ where: { prn: id } });
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
@@ -232,17 +212,18 @@ export const sendStudentCredentials = async (req, res) => {
         }
         
         // Generate a random username and password
-        const username = student._id; // Using PRN as a unique username
+        const username = student.prn; // Using PRN as a unique username
         const password = Math.random().toString(36).slice(-8); // Random 8-character password
 
         // Hash the new password before saving
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        student.username = username;
-        student.password = hashedPassword;
-        student.credentialsGenerated = true;
-        await student.save();
+        await student.update({
+            username,
+            password: hashedPassword,
+            credentialsGenerated: true
+        });
 
         // Send the credentials via email
         const emailResult = await sendCredentials(student.email, username, password);
@@ -251,15 +232,16 @@ export const sendStudentCredentials = async (req, res) => {
             res.status(200).json({ message: 'Credentials sent successfully' });
         } else {
             // If email fails, revert the changes
-            student.credentialsGenerated = false;
-            student.username = undefined;
-            student.password = undefined;
-            await student.save();
+            await student.update({
+                credentialsGenerated: false,
+                username: null,
+                password: null
+            });
             return res.status(500).json({ message: 'Failed to send email. Please try again.' });
         }
 
     } catch (error) {
-        console.error('Error sending credentials:', error);
+        console.error('[studentController.sendStudentCredentials] Error:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -270,6 +252,7 @@ export const sendStudentCredentials = async (req, res) => {
 export const sendBulkCredentials = async (req, res) => {
     try {
         const { studentIds } = req.body; // Array of PRNs
+        console.log('[studentController.sendBulkCredentials] count:', Array.isArray(studentIds) ? studentIds.length : 'invalid');
 
         if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
             return res.status(400).json({ message: 'Please provide valid student IDs' });
@@ -280,7 +263,7 @@ export const sendBulkCredentials = async (req, res) => {
 
         for (const prn of studentIds) {
             try {
-                const student = await Student.findById(prn);
+                const student = await Student.unscoped().findOne({ where: { prn } });
                 if (!student) {
                     errors.push(`Student with PRN ${prn} not found`);
                     continue;
@@ -293,17 +276,18 @@ export const sendBulkCredentials = async (req, res) => {
                 }
 
                 // Generate a random username and password
-                const username = student._id; // Using PRN as a unique username
+                const username = student.prn; // Using PRN as a unique username
                 const password = Math.random().toString(36).slice(-8); // Random 8-character password
 
                 // Hash the new password before saving
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
 
-                student.username = username;
-                student.password = hashedPassword;
-                student.credentialsGenerated = true;
-                await student.save();
+                await student.update({
+                    username,
+                    password: hashedPassword,
+                    credentialsGenerated: true
+                });
 
                 // Send the credentials via email
                 const emailResult = await sendCredentials(student.email, username, password);
@@ -312,14 +296,15 @@ export const sendBulkCredentials = async (req, res) => {
                     results.push(`Credentials sent successfully to ${student.name} (${prn})`);
                 } else {
                     // If email fails, revert the changes
-                    student.credentialsGenerated = false;
-                    student.username = undefined;
-                    student.password = undefined;
-                    await student.save();
+                    await student.update({
+                        credentialsGenerated: false,
+                        username: null,
+                        password: null
+                    });
                     errors.push(`Failed to send email to ${student.name} (${prn})`);
                 }
             } catch (error) {
-                console.error(`Error processing student ${prn}:`, error);
+                console.error(`[studentController.sendBulkCredentials] Error processing ${prn}:`, error);
                 errors.push(`Error processing student ${prn}: ${error.message}`);
             }
         }
@@ -343,21 +328,24 @@ export const sendInvitations = async (req, res) => {
     try {
         const { busId } = req.body;
         const userId = req.user.id;
+        console.log('[studentController.sendInvitations] busId:', busId, 'userId:', userId);
 
         if (!busId) {
             return res.status(400).json({ message: 'Bus ID is required' });
         }
 
         // Check if the bus exists
-        const bus = await Driver.findById(busId);
+        const bus = await Driver.findByPk(busId);
         if (!bus) {
             return res.status(404).json({ message: 'The specified bus does not exist' });
         }
 
         // Get all students for this bus who haven't received invitations yet
-        const students = await Student.find({ 
-            busId: busId,
-            credentialsGenerated: false 
+        const students = await Student.findAll({ 
+            where: {
+                busId: busId,
+                credentialsGenerated: false
+            }
         });
 
         if (students.length === 0) {
@@ -370,21 +358,22 @@ export const sendInvitations = async (req, res) => {
         for (const student of students) {
             try {
                 // Send invitation email with email as username and PRN as password
-                const emailResult = await sendInvitationEmail(student.email, student._id);
+                const emailResult = await sendInvitationEmail(student.email, student.prn);
 
                 if (emailResult.success) {
                     // Mark invitation as sent and credentials as generated
-                    student.invitationSent = true;
-                    student.credentialsGenerated = true;
-                    await student.save();
+                    await student.update({
+                        invitationSent: true,
+                        credentialsGenerated: true
+                    });
                     
                     results.push(`Invitation sent successfully to ${student.name} (${student._id})`);
                 } else {
                     errors.push(`Failed to send invitation to ${student.name} (${student._id}): Email error`);
                 }
             } catch (error) {
-                console.error(`Error processing student ${student._id}:`, error);
-                errors.push(`Error processing student ${student._id}: ${error.message}`);
+                console.error('[studentController.sendInvitations] Error processing student', student.prn, error);
+                errors.push(`Error processing student ${student.prn}: ${error.message}`);
             }
         }
 
@@ -397,7 +386,7 @@ export const sendInvitations = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error sending invitations:', error);
+        console.error('[studentController.sendInvitations] Error:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -407,32 +396,12 @@ export const sendInvitations = async (req, res) => {
 // ================================================================
 export const cleanupIndexes = async (req, res) => {
     try {
-        console.log('Cleaning up database indexes...');
-        
-        // Get the Student collection
-        const collection = mongoose.connection.collection('students');
-        
-        // List all indexes
-        const indexes = await collection.indexes();
-        console.log('Current indexes:', indexes);
-        
-        // Drop any conflicting indexes
-        for (const index of indexes) {
-            if (index.name === 'prn_1' || index.name === 'email_1') {
-                console.log(`Dropping conflicting index: ${index.name}`);
-                await collection.dropIndex(index.name);
-            }
-        }
-        
-        // Recreate the correct indexes
-        await collection.createIndex({ email: 1 }, { unique: true });
-        await collection.createIndex({ busId: 1 });
-        
-        console.log('Index cleanup completed successfully');
-        res.status(200).json({ message: 'Database indexes cleaned up successfully' });
+        // No-op for SQL backend; indexes managed via migrations/ORM
+        console.log('Index cleanup not required for SQL backend');
+        res.status(200).json({ message: 'No index cleanup required for SQL backend' });
         
     } catch (error) {
-        console.error('Error cleaning up indexes:', error);
-        res.status(500).json({ message: 'Failed to clean up indexes', error: error.message });
+        console.error('Error in cleanupIndexes (SQL backend):', error);
+        res.status(500).json({ message: 'Unexpected error', error: error.message });
     }
 };

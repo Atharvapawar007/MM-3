@@ -1,5 +1,5 @@
 import { Card, CardContent } from '../ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { Loader2, Trash2, Phone, User, Bus, Mail, Pencil } from 'lucide-react';
 import type { Driver } from '../../types';
@@ -32,13 +32,9 @@ export function DriverCard({ driver, index, onSelect, onDelete, isDeleting = fal
       <CardContent className="p-6">
         <div className="flex items-center gap-4 mb-4">
           <Avatar className="w-16 h-16 border-2 border-primary">
-            {driver.photoUrl ? (
-              <AvatarImage src={driver.photoUrl} alt={driver.name} />
-            ) : (
-              <AvatarFallback className="bg-primary text-white">
-                {getInitials(driver.name)}
-              </AvatarFallback>
-            )}
+            <AvatarFallback className="bg-primary text-white">
+              {getInitials(driver.name)}
+            </AvatarFallback>
           </Avatar>
           
           <div className="flex-1">

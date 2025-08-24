@@ -14,22 +14,49 @@ console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? '[SET]' : 'UNDEFINED');
 console.log("EMAIL_FROM:", process.env.EMAIL_FROM || 'UNDEFINED');
 console.log("Parsed PORT:", EMAIL_PORT);
 console.log("Parsed SECURE:", EMAIL_SECURE);
+
 // ================================================================
 // Nodemailer Transporter Configuration
 // Configure your SMTP settings here.
 // In a real application, these should be stored in your .env file.
 // ================================================================
+
+// Check if email configuration is complete
+const isEmailConfigured = () => {
+    return process.env.EMAIL_HOST && 
+           process.env.EMAIL_PORT && 
+           process.env.EMAIL_USER && 
+           process.env.EMAIL_PASS && 
+           process.env.EMAIL_FROM;
+};
+
 console.log("Transporter Auth User:", process.env.EMAIL_USER);
 console.log("Transporter Auth Pass:", process.env.EMAIL_PASS ? '[SET]' : '[NOT SET]');
-const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: parseInt(process.env.EMAIL_PORT), // 🔧 convert to number
-    secure: process.env.EMAIL_SECURE === 'true', // ✅ convert string to boolean
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
+console.log("Email Configuration Complete:", isEmailConfigured());
+
+let transporter = null;
+
+if (isEmailConfigured()) {
+    transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: parseInt(process.env.EMAIL_PORT), // 🔧 convert to number
+        secure: process.env.EMAIL_SECURE === 'true', // ✅ convert string to boolean
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+        },
+        // Add connection timeout and socket timeout
+        connectionTimeout: 60000, // 60 seconds
+        socketTimeout: 60000, // 60 seconds
+        // Add pool configuration for better connection handling
+        pool: true,
+        maxConnections: 5,
+        maxMessages: 100,
+    });
+} else {
+    console.warn("⚠️  Email configuration incomplete. Email services will not work.");
+    console.warn("Please create a .env file with EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, and EMAIL_FROM");
+}
 
 // ================================================================
 // Sends a secure password reset link to a user's email.
@@ -38,6 +65,15 @@ const transporter = nodemailer.createTransport({
 // @returns {Promise<object>} An object containing the success status.
 // ================================================================
 export const sendPasswordResetEmail = async (email, resetURL) => {
+    // Check if email service is configured
+    if (!transporter) {
+        console.error('Email service not configured. Cannot send password reset email.');
+        return { 
+            success: false, 
+            error: new Error('Email service not configured. Please set up EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, and EMAIL_FROM in your .env file.') 
+        };
+    }
+
     const mailOptions = {
         from: process.env.EMAIL_FROM,
         to: email,
@@ -77,6 +113,15 @@ export const sendPasswordResetEmail = async (email, resetURL) => {
 // @returns {Promise<object>} An object containing the success status.
 // ================================================================
 export const sendCredentials = async (email, username, password) => {
+    // Check if email service is configured
+    if (!transporter) {
+        console.error('Email service not configured. Cannot send credentials email.');
+        return { 
+            success: false, 
+            error: new Error('Email service not configured. Please set up EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, and EMAIL_FROM in your .env file.') 
+        };
+    }
+
     const mailOptions = {
         from: process.env.EMAIL_FROM,
         to: email,
@@ -113,6 +158,15 @@ export const sendCredentials = async (email, username, password) => {
 // @returns {Promise<object>} An object containing the success status.
 // ================================================================
 export const sendInvitationEmail = async (email, prn) => {
+    // Check if email service is configured
+    if (!transporter) {
+        console.error('Email service not configured. Cannot send invitation email.');
+        return { 
+            success: false, 
+            error: new Error('Email service not configured. Please set up EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, and EMAIL_FROM in your .env file.') 
+        };
+    }
+
     const mailOptions = {
         from: process.env.EMAIL_FROM,
         to: email,

@@ -1,75 +1,82 @@
-import mongoose from 'mongoose';
-const { Schema } = mongoose;
+import { DataTypes } from 'sequelize';
+console.log('[models/Student] Module loaded');
+import { sequelize } from '../services/database.js';
 
-const StudentSchema = new Schema({
-    _id: {
-        type: String, // PRN will be used as the _id
-        required: true,
-        unique: true,
-        trim: true,
+const Student = sequelize.define('Student', {
+    prn: {
+        type: DataTypes.STRING,
+        primaryKey: true,
+        allowNull: false,
+        set(value) {
+            this.setDataValue('prn', value.trim());
+        }
     },
     name: {
-        type: String,
-        required: true,
-        trim: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        set(value) {
+            this.setDataValue('name', value.trim());
+        }
     },
     gender: {
-        type: String,
-        required: true,
-        enum: ['male', 'female', 'other'],
+        type: DataTypes.ENUM('male', 'female', 'other'),
+        allowNull: false
     },
     email: {
-        type: String,
-        required: true,
-        unique: true, // Ensures no two students have the same email
-        trim: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: { isEmail: true },
+        set(value) {
+            this.setDataValue('email', value.trim());
+        }
     },
     busId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Driver', // Reference to the Driver model
-        required: true,
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'bus_id',
+        references: {
+            model: 'drivers',
+            key: 'id'
+        }
     },
     username: {
-        type: String,
-        trim: true,
-        sparse: true, // Allows multiple documents to not have this field
+        type: DataTypes.STRING,
+        set(value) {
+            this.setDataValue('username', value ? value.trim() : value);
+        }
     },
     password: {
-        type: String,
-        trim: true,
-        select: false, // Don't include password in queries by default
+        type: DataTypes.STRING,
+        set(value) {
+            this.setDataValue('password', value ? value.trim() : value);
+        }
     },
     credentialsGenerated: {
-        type: Boolean,
-        default: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        field: 'credentials_generated'
     },
     invitationSent: {
-        type: Boolean,
-        default: false,
-    },
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        field: 'invitation_sent'
+    }
 }, {
-    timestamps: true, // Adds createdAt and updatedAt timestamps
-});
-
-// Add indexes for better query performance
-StudentSchema.index({ busId: 1 });
-StudentSchema.index({ email: 1 });
-
-// Transform the document when converting to JSON/Object
-StudentSchema.set('toJSON', {
-    transform: function(doc, ret) {
-        ret.id = ret._id; // Ensure id field is always present
-        return ret;
+    tableName: 'students',
+    underscored: true,
+    indexes: [
+        { fields: ['bus_id'] },
+        { fields: ['email'] }
+    ],
+    defaultScope: {
+        attributes: { exclude: ['password'] }
+    },
+    scopes: {
+        withPassword: {
+            attributes: { include: ['password'] }
+        }
     }
 });
-
-StudentSchema.set('toObject', {
-    transform: function(doc, ret) {
-        ret.id = ret._id; // Ensure id field is always present
-        return ret;
-    }
-});
-
-const Student = mongoose.model('Student', StudentSchema);
 
 export default Student;

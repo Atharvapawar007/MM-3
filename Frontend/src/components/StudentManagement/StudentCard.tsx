@@ -17,11 +17,11 @@ export function StudentCard({
   onDelete,
   isActionLoading
 }: StudentCardProps) {
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
 
-  return (
+  return (
     <Card className="border bg-card cursor-pointer transform transition-transform duration-200 ease-out shadow-md hover:shadow-lg hover:scale-105 hover:border-secondary/50">
       <CardContent className="p-4">
         <div className="flex items-center gap-3 mb-3">
@@ -34,7 +34,7 @@ export function StudentCard({
             <h4 className="font-medium text-foreground">{student.name}</h4>
             <p className="text-xs text-muted-foreground">PRN: {student.prn}</p>
           </div>
-          <div className={`${student.credentialsGenerated ? 'visible' : 'invisible'} text-green-600`}>
+          <div className={`${student.invitationSent ? 'visible' : 'invisible'} text-green-600`}>
             <CheckCircle className="w-4 h-4" />
           </div>
         </div>
@@ -42,13 +42,13 @@ export function StudentCard({
         <div className="space-y-1 text-xs mb-3">
           <p className="text-foreground"><span className="font-medium">Gender:</span> {student.gender}</p>
           <p className="text-foreground"><span className="font-medium">Email:</span> {student.email}</p>
-          <p className={`${student.credentialsGenerated ? 'visible' : 'invisible'} text-green-600 font-medium`}>✓ Invitation Sent</p>
+          <p className={`${student.invitationSent ? 'visible' : 'invisible'} text-green-600 font-medium`}>✓ Invitation Sent</p>
         </div>
 
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
+         <div className="flex gap-2">
+           <Button
+           variant="outline"
+           size="sm"
             onClick={onEdit}
             className="flex-1 border-gray-300 text-slate-700 hover:bg-gray-200"
           >

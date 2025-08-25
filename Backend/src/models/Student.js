@@ -40,23 +40,6 @@ const Student = sequelize.define('Student', {
             key: 'id'
         }
     },
-    username: {
-        type: DataTypes.STRING,
-        set(value) {
-            this.setDataValue('username', value ? value.trim() : value);
-        }
-    },
-    password: {
-        type: DataTypes.STRING,
-        set(value) {
-            this.setDataValue('password', value ? value.trim() : value);
-        }
-    },
-    credentialsGenerated: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-        field: 'credentials_generated'
-    },
     invitationSent: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
@@ -70,12 +53,7 @@ const Student = sequelize.define('Student', {
         { fields: ['email'] }
     ],
     defaultScope: {
-        attributes: { exclude: ['password'] }
-    },
-    scopes: {
-        withPassword: {
-            attributes: { include: ['password'] }
-        }
+        attributes: {}
     }
 });
 

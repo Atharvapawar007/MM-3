@@ -1,5 +1,4 @@
-import bcrypt from 'bcryptjs';
-import { sendCredentials, sendInvitationEmail } from '../services/emailService.js';
+import { sendInvitationEmail } from '../services/emailService.js';
 import { Student, Driver } from '../models/index.js';
 import { Op } from 'sequelize';
 console.log('[studentController] Module loaded');
@@ -47,7 +46,6 @@ export const addStudent = async (req, res) => {
             email,
             busId,
             userId,
-            credentialsGenerated: false,
             invitationSent: false
         });
 
@@ -60,7 +58,6 @@ export const addStudent = async (req, res) => {
             email: newStudent.email,
             busId: newStudent.busId,
             userId: newStudent.userId,
-            credentialsGenerated: newStudent.credentialsGenerated,
             invitationSent: newStudent.invitationSent,
             createdAt: newStudent.createdAt,
             updatedAt: newStudent.updatedAt
@@ -117,7 +114,6 @@ export const updateStudent = async (req, res) => {
             email: student.email,
             busId: student.busId,
             userId: student.userId,
-            credentialsGenerated: student.credentialsGenerated,
             invitationSent: student.invitationSent,
             createdAt: student.createdAt,
             updatedAt: student.updatedAt
@@ -178,7 +174,6 @@ export const getStudents = async (req, res) => {
             email: s.email,
             busId: s.busId,
             userId: s.userId,
-            credentialsGenerated: s.credentialsGenerated,
             invitationSent: s.invitationSent,
             createdAt: s.createdAt,
             updatedAt: s.updatedAt
@@ -194,49 +189,33 @@ export const getStudents = async (req, res) => {
 };
 
 // ================================================================
-// Generate credentials and send invitation email
+// Send invitation email to student
 // ================================================================
 export const sendStudentCredentials = async (req, res) => {
     try {
         const { id } = req.params; // Treat as PRN
         console.log('[studentController.sendStudentCredentials] PRN:', id);
 
-        const student = await Student.unscoped().findOne({ where: { prn: id } });
+        const student = await Student.findOne({ where: { prn: id } });
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
 
-        // Only send credentials if they haven't been generated yet
-        if (student.credentialsGenerated) {
-            return res.status(400).json({ message: 'Credentials for this student have already been sent' });
+        // Only send invitation if it hasn't been sent yet
+        if (student.invitationSent) {
+            return res.status(400).json({ message: 'Invitation for this student has already been sent' });
         }
         
-        // Generate a random username and password
-        const username = student.prn; // Using PRN as a unique username
-        const password = Math.random().toString(36).slice(-8); // Random 8-character password
-
-        // Hash the new password before saving
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        await student.update({
-            username,
-            password: hashedPassword,
-            credentialsGenerated: true
-        });
-
-        // Send the credentials via email
-        const emailResult = await sendCredentials(student.email, username, password);
+        // Send invitation email with email as username and PRN as password
+        const emailResult = await sendInvitationEmail(student.email, student.prn);
 
         if (emailResult.success) {
-            res.status(200).json({ message: 'Credentials sent successfully' });
-        } else {
-            // If email fails, revert the changes
+            // Mark invitation as sent
             await student.update({
-                credentialsGenerated: false,
-                username: null,
-                password: null
+                invitationSent: true
             });
+            res.status(200).json({ message: 'Invitation sent successfully' });
+        } else {
             return res.status(500).json({ message: 'Failed to send email. Please try again.' });
         }
 
@@ -247,7 +226,7 @@ export const sendStudentCredentials = async (req, res) => {
 };
 
 // ================================================================
-// Send credentials to multiple students
+// Send invitations to multiple students
 // ================================================================
 export const sendBulkCredentials = async (req, res) => {
     try {
@@ -263,45 +242,29 @@ export const sendBulkCredentials = async (req, res) => {
 
         for (const prn of studentIds) {
             try {
-                const student = await Student.unscoped().findOne({ where: { prn } });
+                const student = await Student.findOne({ where: { prn } });
                 if (!student) {
                     errors.push(`Student with PRN ${prn} not found`);
                     continue;
                 }
 
-                // Only send credentials if they haven't been generated yet
-                if (student.credentialsGenerated) {
-                    errors.push(`Credentials for student ${prn} have already been sent`);
+                // Only send invitation if it hasn't been sent yet
+                if (student.invitationSent) {
+                    errors.push(`Invitation for student ${prn} has already been sent`);
                     continue;
                 }
 
-                // Generate a random username and password
-                const username = student.prn; // Using PRN as a unique username
-                const password = Math.random().toString(36).slice(-8); // Random 8-character password
-
-                // Hash the new password before saving
-                const salt = await bcrypt.genSalt(10);
-                const hashedPassword = await bcrypt.hash(password, salt);
-
-                await student.update({
-                    username,
-                    password: hashedPassword,
-                    credentialsGenerated: true
-                });
-
-                // Send the credentials via email
-                const emailResult = await sendCredentials(student.email, username, password);
+                // Send invitation email with email as username and PRN as password
+                const emailResult = await sendInvitationEmail(student.email, student.prn);
 
                 if (emailResult.success) {
-                    results.push(`Credentials sent successfully to ${student.name} (${prn})`);
-                } else {
-                    // If email fails, revert the changes
+                    // Mark invitation as sent
                     await student.update({
-                        credentialsGenerated: false,
-                        username: null,
-                        password: null
+                        invitationSent: true
                     });
-                    errors.push(`Failed to send email to ${student.name} (${prn})`);
+                    results.push(`Invitation sent successfully to ${student.name} (${prn})`);
+                } else {
+                    errors.push(`Failed to send invitation to ${student.name} (${prn})`);
                 }
             } catch (error) {
                 console.error(`[studentController.sendBulkCredentials] Error processing ${prn}:`, error);
@@ -310,13 +273,13 @@ export const sendBulkCredentials = async (req, res) => {
         }
 
         res.status(200).json({ 
-            message: 'Bulk credentials operation completed',
+            message: 'Bulk invitations operation completed',
             results,
             errors
         });
 
     } catch (error) {
-        console.error('Error sending bulk credentials:', error);
+        console.error('Error sending bulk invitations:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -344,7 +307,7 @@ export const sendInvitations = async (req, res) => {
         const students = await Student.findAll({ 
             where: {
                 busId: busId,
-                credentialsGenerated: false
+                invitationSent: false
             }
         });
 
@@ -361,10 +324,9 @@ export const sendInvitations = async (req, res) => {
                 const emailResult = await sendInvitationEmail(student.email, student.prn);
 
                 if (emailResult.success) {
-                    // Mark invitation as sent and credentials as generated
+                    // Mark invitation as sent
                     await student.update({
-                        invitationSent: true,
-                        credentialsGenerated: true
+                        invitationSent: true
                     });
                     
                     results.push(`Invitation sent successfully to ${student.name} (${student._id})`);

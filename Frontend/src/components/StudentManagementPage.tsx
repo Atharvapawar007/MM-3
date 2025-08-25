@@ -184,7 +184,7 @@ export function StudentManagementPage({
     setIsDeleteModalOpen(true);
   };
 
-  const handleFormSubmit = async (studentData: Omit<Student, 'id' | 'credentialsGenerated' | 'createdAt'>) => {
+  const handleFormSubmit = async (studentData: Omit<Student, 'id' | 'createdAt'>) => {
     if (!selectedBusId) {
         toast.error('No bus selected');
         return;
@@ -318,7 +318,7 @@ export function StudentManagementPage({
     try {
       await api.sendInvitations(selectedBusId);
       
-      // Refresh the students list to get updated credentialsGenerated status from backend
+      // Refresh the students list to get updated invitationSent status from backend
       await fetchStudentsForBus(selectedBusId);
       
       toast.success('Invitations sent successfully!', {
@@ -360,7 +360,7 @@ export function StudentManagementPage({
   const isSearchMode = searchTerm.length > 0;
   const studentsWithoutInvitations = useMemo(() => {
     try {
-      return selectedBus ? students.filter(s => s && s.busId === selectedBus.id && !s.credentialsGenerated) : [];
+      return selectedBus ? students.filter(s => s && s.busId === selectedBus.id && !s.invitationSent) : [];
     } catch (error) {
       console.error('Error filtering students without invitations:', error);
       return [];

@@ -105,51 +105,6 @@ export const sendPasswordResetEmail = async (email, resetURL) => {
     }
 };
 
-// ================================================================
-// Sends initial login credentials to a new student.
-// @param {string} email - The student's email address.
-// @param {string} username - The student's generated username.
-// @param {string} password - The student's generated password.
-// @returns {Promise<object>} An object containing the success status.
-// ================================================================
-export const sendCredentials = async (email, username, password) => {
-    // Check if email service is configured
-    if (!transporter) {
-        console.error('Email service not configured. Cannot send credentials email.');
-        return { 
-            success: false, 
-            error: new Error('Email service not configured. Please set up EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, and EMAIL_FROM in your .env file.') 
-        };
-    }
-
-    const mailOptions = {
-        from: process.env.EMAIL_FROM,
-        to: email,
-        subject: 'BusTracker Portal - Your New Login Credentials',
-        html: `
-            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-                <h2 style="color: #1e3a8a;">Welcome to the BusTracker Portal!</h2>
-                <p>Hello,</p>
-                <p>Your login credentials have been created. You can now log in to the BusTracker Portal using the details below:</p>
-                <p style="margin-top: 20px;"><strong>Username:</strong> ${username}</p>
-                <p><strong>Password:</strong> ${password}</p>
-                <p style="margin-top: 20px;">Please remember to change your password after your first login for security purposes.</p>
-                <p>If you have any questions, please contact the administration.</p>
-                <hr style="border: 0; border-top: 1px solid #e5e7eb; margin-top: 20px;">
-                <p style="font-size: 12px; color: #6b7280;">BusTracker Admin Portal</p>
-            </div>
-        `,
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Credentials sent to ${email}`);
-        return { success: true };
-    } catch (error) {
-        console.error(`Failed to send credentials to ${email}:`, error);
-        return { success: false, error };
-    }
-};
 
 // ================================================================
 // Sends invitation email to students for the future app.

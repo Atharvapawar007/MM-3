@@ -36,9 +36,6 @@ export interface Student {
   gender: string;
   email: string;
   busId: string;
-  username?: string;
-  password?: string;
-  credentialsGenerated?: boolean;
   invitationSent?: boolean;
   createdAt?: string;
   updatedAt?: string;
